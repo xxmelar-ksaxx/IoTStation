@@ -1,0 +1,47 @@
+.inline{
+    display: inline;
+}
+.inline-block{
+    display: inline-block;
+}
+.reletive{
+    position: relative;
+}
+.center{
+    text-align: center;
+}
+.divcenter{
+    text-align: -webkit-center;
+}
+.align-none{
+    text-align: none;
+}
+.left{
+    text-align: left;
+}
+.fright{
+    float: right;
+}
+.fleft{
+    float: left;
+}
+.mreset{
+    margin:0;
+}
+.preset{
+    padding:0;
+}
+.flex{
+    display: flex;
+}
+.justify-space-between{
+    justify-content: space-between;
+}
+.bg-Absolute-Shadow{
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(30, 30, 30, 0.201);
+    position:absolute;
+    left:0;
+    top:0;
+}

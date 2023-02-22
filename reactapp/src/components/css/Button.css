@@ -1,0 +1,54 @@
+
+.Button{
+    background-color:#FF961C; 
+    border: none;
+    color: rgb(2, 2, 2);
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+    
+    border: 2px solid #FF961C;
+    border-radius: 5px;
+    transition-duration: 0.2s;
+
+}
+
+.Button:hover {
+    background-color: #ffffff; 
+    border: 2px solid #FF961C;
+    cursor: pointer;
+  }
+
+.Button:active{
+background-color: #FF961C; 
+color: rgb(0, 0, 0);
+cursor: progress;
+}
+.Button:disabled{
+  background-color: #955003;
+  border-color: #955003;
+  color: rgb(0, 0, 0);
+  cursor: not-allowed;
+}
+
+.small{
+  padding: 5px 16px;
+}
+
+.test-btn{
+  background-color: #fff7022e;
+  /* width:30px; */
+  /* padding: 10px; */
+  /* color: #FF961C; */
+}
+.test-btn:hover{
+  cursor: pointer;
+  background-color: #f8f7d1;
+  color:#000;
+}
+
+.test-btn:active{
+  background-color: #5d5a00;
+}
