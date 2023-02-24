@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import User
-from .models import DLDevice
+from api.models import User
+from api.models import DLDevice
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
