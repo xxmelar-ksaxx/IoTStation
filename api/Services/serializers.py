@@ -8,13 +8,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class DeviceSerializer(serializers.ModelSerializer):
-
-    
-
+    last_update = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S %Z")
     updated = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S %Z")
 
     class Meta:
         model = DLDevice
         # fields = '__all__'
 
-        exclude = ['passkey']
+        exclude = ['device_access_key']

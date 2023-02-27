@@ -18,6 +18,8 @@ class Device_Services():
 
     def update_occurs(user):
         # device status has changed.
+        # user_profile updated field changes
+        ## hence, update ouccures on some of the user devices
         try:
             UserProfile.objects.get(user=user).save()
         except Exception as e:

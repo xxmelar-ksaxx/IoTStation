@@ -25,10 +25,10 @@ const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
     const [isLodead, setIsLodead] = useState(false);
     const [itemsDic, setItemsDic] = useState({});
 
-    const [counter,setCounter]=useState(0);
     const [firstCall,setfirstCall]=useState(true);
     const [allDevs,setAllDevs]=useState({});
     const [hasUpdateDate,setHasUpdateDate]=useState('1122');
+    
 
 
     const testfunc=(v)=>{
@@ -142,14 +142,6 @@ const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
                 console.log('got some updates !!');
             }
 
-            // if(counter < 3){
-            //     setAllDevs(await get_all_devices());
-            //     setCounter(counter+1);
-            // }else{
-            //     console.log('counter finnished !!')
-            // }
-
-
           }, 100); // ms
           return () => clearInterval(interval);
 
@@ -175,7 +167,7 @@ const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
         //     console.log(allDevices[key])
         // }
         for(let key in allDevs) {
-            listData.push(<ListItem theItem={allDevs[key]} />)
+            listData.push(<ListItem theItem={allDevs[key]}/>)
         }
         return listData;
     }
@@ -184,7 +176,7 @@ const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
     return (
         <div className="center">
             <h1 className="page-title">Devices</h1>
-            <p  className="test-btn" onClick={logout}>Logout</p>
+            <p  className="test-btn" onClick={()=>logout()}>Logout</p>
            
             {/* list of items continer */}
             <div className="divcenter">

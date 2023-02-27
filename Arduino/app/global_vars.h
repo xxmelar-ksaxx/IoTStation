@@ -1,5 +1,7 @@
 
 // HW data dictionaries
+JSONVar update_request_dic;
+JSONVar auth_dic;
 JSONVar HW_data_dic;
 JSONVar main_menu_dic;
 JSONVar sub_menu_dic;
@@ -10,7 +12,7 @@ JSONVar sub_controller_states_dic;
 
 // Updates
 bool is_controller_device=true;
-int server_update_interval=3000; //ms
+int server_update_interval=500; //ms
 String device_last_update_date="";
 
 // Door status

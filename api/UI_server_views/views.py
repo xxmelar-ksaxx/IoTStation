@@ -1,3 +1,4 @@
+from time import sleep
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
@@ -17,26 +18,6 @@ import os
 # ---------------------------------------------------------
 #        User Authentication
 
-
-# @method_decorator(csrf_protect, name='dispatch')
-class testCalls(APIView):
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [permissions.AllowAny]
-
-    # random string, allow devices to access http requests (Auth stuff)
-    allowed_cookie=str(os.environ.get('HW_ACCESS_KEY'))
-    
-    
-    def post(self, request, *args, **kwargs):
-        cookie=request.META["CSRF_COOKIE"]
-        if(testCalls.allowed_cookie==cookie):
-            user= self.request.data['data']
-        
-            return Response(f"you're in!!__  {user}\n  coocie:  {cookie}")
-        else:
-            return Response({ 'error': 'Something went wrong when checking authentication status' })
-
-    # def post()
 
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
@@ -171,7 +152,7 @@ class UserDevices(APIView):
 
             if(data and (data.get('type') == 'device')):
                 try:
-                    user_devices = DLDevice.objects.get(user=user, namekey=data.get('namekey'))
+                    user_devices = DLDevice.objects.get(user=user, hw_id=data.get('namekey'))
                     user_devices = DeviceSerializer(user_devices)
                 except Exception as e:
                     return Response({ 'error': str(e) })
@@ -195,37 +176,60 @@ class UserDevices(APIView):
             user = self.request.user
             data = self.request.data
             label = data['label']
-            namekey = data['namekey']
-            passkey = data['passkey']
+            hw_id = data['namekey']
+            device_access_key = data['passkey']
         
-            new_device= DLDevice.objects.create(user=user, label=label, namekey=namekey, passkey=passkey)
+            new_device= DLDevice.objects.create(user=user, label=label, hw_id=hw_id, device_access_key=device_access_key)
             new_device.save()
             
             return Response({ 'success': 'Added new Device successfully'})
         except:
             return Response({ 'error': 'Something went wrong when adding new device' })
     
-    def put(self, request, format=None):
-        # update lable
+    def label_or_UI_update(data):
         try:
-            user = self.request.user
-            data = self.request.data
-            if(data['namekey'] and data['label']):
-                device= DLDevice.objects.get(user=user,namekey=data['namekey'])
+            if(data['hw_id'] and data['label']):
+                return "label"
+        except:
+            pass
+        try:
+            if(data['hw_id'] and data['u']):
+                return "u"
+        except:
+            pass
+        return False
+
+    def put(self, request, format=None):
+        # update device state & lable
+        user = request.user
+        data = request.data
+        if(UserDevices.label_or_UI_update(data)=="u"):
+            try:
+                device= DLDevice.objects.get(user=user,hw_id=data['hw_id'])
+                device.UI_updates=data['u']
+                device.save()
+                Device_Services.update_occurs(user)
+            except:
+                return Response({ 'error': 'Something went wrong when updating device' })
+        elif(UserDevices.label_or_UI_update(data)=="label"):
+            try:
+                device= DLDevice.objects.get(user=user,hw_id=data['hw_id'])
                 device.label=data['label']
                 device.save()
-
                 Device_Services.update_occurs(user)
-
-            return Response({ 'success': 'Update Device successfully'})
-        except:
+            except:
+                return Response({ 'error': 'Something went wrong when updating device' })
+        else:
             return Response({ 'error': 'Something went wrong when updating device' })
-    
+
+        return Response({ 'success': 'Update Device successfully'})
+
+
     def delete(self, request, format=None):
         try:
             user = self.request.user
             data = self.request.data
-            DLDevice.objects.filter(user=user, namekey=data['namekey']).delete()
+            DLDevice.objects.filter(user=user, hw_id=data['namekey']).delete()
 
             return Response({ 'success': 'Device Deleted successfully'})
         except:

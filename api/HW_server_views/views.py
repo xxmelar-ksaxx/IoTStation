@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from django.contrib import auth
 from rest_framework.response import Response
-from api.models import DLDevice
+from api.models import UserProfile, DLDevice
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
@@ -34,7 +34,7 @@ class HWSU(APIView):
                 data = self.request.data
                 print("data: ",data)
                 if(data['namekey'] and data['passkey']):
-                    device= DLDevice.objects.get(passkey=data['passkey'], namekey=data['namekey'])
+                    device= DLDevice.objects.get(device_access_key=data['passkey'], hw_id=data['namekey'])
                     device.is_closed=data['is_closed']
                     device.is_locked=data['is_locked']
                     device.save()
@@ -57,35 +57,59 @@ class HWSU(APIView):
         HWSU.last_update_date="1"
         HWSU.light_1="true"
 
+    def is_auth_client(request):
+        # compares client access_token with db_user access_token
+        # also, device ID and access_key
+        try:
+            access_token=request.META["CSRF_COOKIE"]
+            if(request.method=="GET"):
+                hw_id = request.GET.get("id")
+            else:    
+                hw_id = request.data['auth']['id']
+                device_access_key = request.data['auth']['key']
+        except:
+            return JsonResponse({ 'error': 'JSON denied' })
+        try:
+            user_profile=UserProfile.objects.get(access_token=access_token)
+            if(request.method=="GET"):
+                device=DLDevice.objects.get(user=user_profile.user,
+                hw_id=hw_id)
+            else:    
+                device=DLDevice.objects.get(user=user_profile.user,
+                    hw_id=hw_id, 
+                    device_access_key=device_access_key)
+            return device
+        except:
+            return JsonResponse({ 'error': 'CSRF denied' })
+    
     def get(self, request, format=None):
-        
+        device=HWSU.is_auth_client(request)
+        if(type(device) == JsonResponse ):
+            return device
         has_update={
-            "t":HWSU.last_update_date
+            "t":device.updated
         }
         return JsonResponse(has_update)
-    
+
     def post(self, request, format=None):
+        device=HWSU.is_auth_client(request)
+        if(type(device) == JsonResponse ):
+            return device
+        
+        # set HW updates
         try:
-            if (self.request.data["PU"]): 
-                HWSU.postman_test_update_controller()
-                return Response({ 'success': 'Update Device successfully'})
+            if(device.HW_updates!=request.data['data']):
+                device.HW_updates=request.data['data']
+                device.last_update=device.updated
+            device.save()
+            Device_Services.update_occurs(device.user)
         except:
-            pass
-        cookie=request.META["CSRF_COOKIE"]
-        if(HWSU.allowed_cookie==cookie):
-            print(self.request.data)
-            
-            updates_dic={
-                "t":HWSU.last_update_date, # t = device last update time
-                "u":{ # device controller states update
-                    "light_1":HWSU.light_1
-                } 
-            }
+            return JsonResponse({ 'error': 'JSON denied' })
+        
+        # get UI updates
+        updates_dic={
+            "t":device.updated, # t = device last update time
+            "u":device.UI_updates # device controller states update
+        }
 
-            return JsonResponse(updates_dic)
-            # return JsonResponse({"bat":"hi"})
-            
-        return JsonResponse({ 'error': 'CSRF denied' })
-        # return Response({ 'success': 'Update Device successfully'})
-
-          
+        return JsonResponse(updates_dic)

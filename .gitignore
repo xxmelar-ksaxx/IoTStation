@@ -163,6 +163,7 @@ cython_debug/
 
 iotStation_RUN.bat
 iotS_MakeMigrations.bat
+iotStation_RUN_TESTS.bat
 
 # Arduino stuff
 
