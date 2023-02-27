@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=arduino,django,react,py,cpp,js" />
+  </a>
+</p>
 
 # IoTStation
 ### Make your own IoT devises, monitor and control them.
