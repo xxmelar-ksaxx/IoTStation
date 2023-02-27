@@ -1,35 +1,61 @@
-##### ***important note:*** *SSR not implemented yet, this is the initial repo commit*
+
 # IoTStation
 ### Make your own IoT devises, monitor and control them.
-IoTStation is a generalized system that let’s you create, monitor and control your IoT Devices.
-
-The main advantage of this system is that you only code your IoT Device, you don’t need to touch the backend or frontend, the system will represent the device features in the proper way.
+IoTStation is a generalized system that let’s you create, monitor and control your IoT Devices. The main advantage of this system is that you only code your IoT Device, you don’t need to touch the back-end or front-end code, the system will represent the device features in a proper way.
 
 ## Create your own IoT devices
-With IoTStation you only need to write software for the hardware side (ex: Arduino), add your own features like a door state [open, close], or a light switch [on, off]. Type and number of features does not matter here, the system can handle them with ease, that because the system communicate with hardware devises via a standard representation, the system frontend and backend can accept any thing as long as it’s within the standard representation of data.
+With IoTStation you only need to write software for the hardware side (ex: Arduino), add your own features like a door state [open, close], or a light switch [on, off]. Type and number of features does not matter here, the system can handle them with ease, that because the system communicate with hardware devises via a Specific JSON Structure, the system front-end and back-end can accept any thing as long as the data is within the Specific JSON Structure.
 
-## System Standard Representation (SSR)
-We have two types of states, **informative** state and **controller** state. Informative state can only send data to server when update occurs on the hardware, no need to communicate with server if no update occurs on the hardware side. The controller state in the other hand need to operate in both ways, send and fetch data from the server. That to update the server about hardware status, and vise versa.
+## Specific JSON Structure (SJS)
+We have two categories of states, **informative** and **controller**. Informative is for monitoring stuff, like a door state, [open, closed], or as a power draw value [385.43w].
 
-When a device has at lest one controller states, by default it has to communicate in both ways. To reduce the number of API requests and make the communication process more efficient, we utilize the *request - response* behavior by sending hardware status with the http *request*, and get server status with the http *********response*********.
+Controllers is basically for controlling stuff, normal light, RGB light, or maybe a curtain state [50% opened] etc..
 
 ### Known & Unknown states
-Device states are divided into two groups, known and unknown states. Known state have representation in the frontend by icons or other means, but the Unknown states don’t, they are represented by plain text [hardware row data] without icons.
+In the front-end, device states are divided into two groups, known and unknown states. Known states have representation in the front-end by icons, but the Unknown states don’t, they are represented by plain text [hardware row data] without icons.
 
 ![Screenshot](images/kukstates.png)
 
-Example of SSR:
+Example of SJS hardware to server update:
 ```
-data:{
-	informative:{
-		look:"closed",  # known state								
-		power-watt:"600.82",  # known state
-		state_3:"medium"
-		water_flow:"9.16m^3", # unknown state
+{
+	"auth":{
+		"id":"abc",    # Device id
+		"key":"abc123" # Device access-key, to update it's state on the server
 	},
-	controller:{
-		switch_1:"off", # unknown state
-		light:"on",  # known state
+	"data":{
+		"m":{ # UI main menu
+			"i":{ # informative states
+				look:"closed",  # known state								
+				power-watt:"600.82",  # known state
+			},
+			"c":{ # controller states
+				switch_1:"off", # unknown state
+			}
+		},
+		"s":{ # UI sub menu
+			"i":{ # informative states
+				state_3:"medium" # unknown state
+				water_flow:"9.16m^3", # unknown state
+			},
+			"c":{ # controller states
+				light:"on",  # known state
+			}
+		},
+		"o":{ # OPTIONS, some config stuff. (future features :))
+
+		}
 	}
+}
+```
+
+Example of SJS server to hardware update:
+```
+{
+	"t":"<time stamp>",
+	"u":{ # contains only Controller states updates
+		switch_1:"on",
+		light:"off"
+	}	
 }
 ```
