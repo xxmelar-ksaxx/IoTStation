@@ -1,8 +1,6 @@
 import './css/Button.css'
 import './css/ListItem.css'
 import './css/globalStyles.css'
-import Switch from '@mui/material/Switch';
-// https://mui.com/material-ui/react-switch/
 
 // https requests
 import { send_device_update } from '../actions/devices';
@@ -13,6 +11,9 @@ import { TiLockClosedOutline, TiLockOpenOutline } from "react-icons/ti";
 import { MdSignalWifiConnectedNoInternet0, MdSignalWifiStatusbar3Bar } from "react-icons/md";
 import { BsLightbulb, BsLightbulbOff } from "react-icons/bs";
 
+// https://mui.com/material-ui/react-switch/
+import Switch from '@mui/material/Switch';
+
 import React, {useState} from "react";
 import { useEffect } from "react";
 import { connect } from 'react-redux';
@@ -20,7 +21,7 @@ import { connect } from 'react-redux';
 
 const ListItem = ({theItem, send_device_update}) => {
     const [uiUpdateTimer, setUiUpdateTimer]= useState(Date.now());
-    const [isConnected, setIsConnected] = React.useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
     const [bfirst_component_call, bsetfirst_component_call] =  useState(false);
     const [UI_updates_json, setUI_updates_json] =  useState({});
@@ -56,9 +57,6 @@ const ListItem = ({theItem, send_device_update}) => {
         return ui_icon(key, val)
     }
 
-
-
-    
     // End-of -> Informative states Stuff
     //----------------------------------------------
     // Start-of -> Controller states Stuff
@@ -170,14 +168,10 @@ const ListItem = ({theItem, send_device_update}) => {
 
     // End-of ->  Controllers ( Switch type )
     //----------------------------------------------
-    
-   
-
-    
+    // Start-of -> icons prep area
     
     const prep_main_menu_items=(json)=>{
         let main_menu_items=[]
-        
         
         for(let mKeys in json){
             if(mKeys == "i"){
@@ -198,6 +192,7 @@ const ListItem = ({theItem, send_device_update}) => {
         
     }
 
+    // End-of -> icons prep area
     //---------------------------------------
     // Clean code, kind of :)
     
@@ -207,6 +202,7 @@ const ListItem = ({theItem, send_device_update}) => {
         */
         let last_update=Date.parse(theItem.updated)
         let current_time=Date.now()
+        
         if(current_time-last_update<5000){
             if(!isConnected){
                 setIsConnected(true);
@@ -227,6 +223,36 @@ const ListItem = ({theItem, send_device_update}) => {
         prep_UI_update_json(); // json that will be sent to HW
     }
 
+    function timeSince(last_update) {
+        /**
+         * takes time in ms,
+         * Returns last update in sec, min, hr, day, etc...
+         */
+        var seconds = Math.floor((Date.now()-Date.parse(last_update)) / 1000);
+      
+        var interval = seconds / 31536000;
+      
+        if (interval > 1) {
+          return Math.floor(interval) + " years";
+        }
+        interval = seconds / 2592000;
+        if (interval > 1) {
+          return Math.floor(interval) + " months";
+        }
+        interval = seconds / 86400;
+        if (interval > 1) {
+          return Math.floor(interval) + " days";
+        }
+        interval = seconds / 3600;
+        if (interval > 1) {
+          return Math.floor(interval) + " hours";
+        }
+        interval = seconds / 60;
+        if (interval > 1) {
+          return Math.floor(interval) + " minutes";
+        }
+        return Math.floor(seconds) + " seconds";
+      }
 
     useEffect(() => {
         
@@ -251,7 +277,7 @@ const ListItem = ({theItem, send_device_update}) => {
                 <div>
                     <div className="list-item-div-0">
                         <p id="device-lable">{theItem.label}</p>
-                        <span>
+                        <span className="f-black">
                             {/* Returns Connection icon */}
                             {is_still_connected()}
                         </span>
@@ -259,8 +285,8 @@ const ListItem = ({theItem, send_device_update}) => {
                     </div>
 
                     <div className="list-item-div-2">
-                        <p>Device Name : {theItem.hw_id}</p>
-                        <p>Register Date : {theItem.last_update}</p>
+                        <p>Device ID : {theItem.hw_id}</p>
+                        <p>Last Update : {timeSince(theItem.last_update)}</p>
                     </div>
                 </div>
 
