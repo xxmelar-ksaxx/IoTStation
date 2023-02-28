@@ -23,6 +23,8 @@ const ListItem = ({theItem, send_device_update}) => {
     const [uiUpdateTimer, setUiUpdateTimer]= useState(Date.now());
     const [isConnected, setIsConnected] = useState(false);
 
+    const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+
     const [bfirst_component_call, bsetfirst_component_call] =  useState(false);
     const [UI_updates_json, setUI_updates_json] =  useState({});
 
@@ -254,6 +256,20 @@ const ListItem = ({theItem, send_device_update}) => {
         return Math.floor(seconds) + " seconds";
       }
 
+    const main_menu_clicked=()=>{
+        if(!isSubMenuOpen){
+            setIsSubMenuOpen(true);
+            return null;
+        }
+        setIsSubMenuOpen(false);
+        return null;
+    }
+
+    const getSubMenuIsOpen=()=>{
+        if(!isSubMenuOpen){return 'none'}
+        return '';
+    }
+
     useEffect(() => {
         
         if(!bfirst_component_call){
@@ -274,26 +290,36 @@ const ListItem = ({theItem, send_device_update}) => {
         <div className="list-item-div">
            
             <div className="list-item-div-1">
-                <div>
+
+                <div onClick={main_menu_clicked}>
                     <div className="list-item-div-0">
                         <p id="device-lable">{theItem.label}</p>
                         <span className="f-black">
                             {/* Returns Connection icon */}
                             {is_still_connected()}
                         </span>
-
                     </div>
 
                     <div className="list-item-div-2">
                         <p>Device ID : {theItem.hw_id}</p>
                         <p>Last Update : {timeSince(theItem.last_update)}</p>
+                        <p>isSubMenuOpen : {getSubMenuIsOpen()}</p>
                     </div>
                 </div>
 
-                <div className="door-state-icons-div">
+                <div  style={{marginLeft:'auto'}}>
                     <div> {/* main menu states div */}
                     {prep_main_menu_items(theItem.HW_updates.m)}
                     </div>
+                </div>
+            </div>
+            
+            <div className="subMenuDiv" style={{display:getSubMenuIsOpen()}}>
+                <div>
+                    Edit|Delete|Log<br/>features
+                </div>
+                <div style={{marginLeft:'auto'}}>
+                    {prep_main_menu_items(theItem.HW_updates.m)}
                 </div>
             </div>
         </div>

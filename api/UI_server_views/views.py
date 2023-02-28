@@ -176,14 +176,15 @@ class UserDevices(APIView):
             user = self.request.user
             data = self.request.data
             label = data['label']
-            hw_id = data['namekey']
-            device_access_key = data['passkey']
+            hw_id = data['hw_id']
+            device_access_key = data['access_key']
         
             new_device= DLDevice.objects.create(user=user, label=label, hw_id=hw_id, device_access_key=device_access_key)
             new_device.save()
             
             return Response({ 'success': 'Added new Device successfully'})
-        except:
+        except Exception as e:
+            print(e)
             return Response({ 'error': 'Something went wrong when adding new device' })
     
     def label_or_UI_update(data):

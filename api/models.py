@@ -26,7 +26,7 @@ class DLDevice(models.Model):
     is_closed = models.CharField(max_length=30, default=False)
     is_locked = models.CharField(max_length=30, default=False)
 
-    last_update = models.DateTimeField()
+    last_update = models.DateTimeField(null=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
