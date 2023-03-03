@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import { TbHome } from "react-icons/tb";
 import { BiUser } from "react-icons/bi";
 import { AiOutlineSetting } from "react-icons/ai";
+import { MdAdd } from "react-icons/md";
 
 const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
     
@@ -29,6 +30,8 @@ const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
     const [allDevs,setAllDevs]=useState({});
     const [hasUpdateDate,setHasUpdateDate]=useState('1122');
     
+    // add new devices form visiblity
+    const [isAddDevice,setIsAddDevice]=useState(false);
 
 
     const testfunc=(v)=>{
@@ -172,24 +175,37 @@ const HomePage = ({isAuthenticated, logout, get_devices, has_update}) => {
         return listData;
     }
     
+    const open_add_new_device=()=>{
+        setIsAddDevice(true)
+    }
+
+    const close_add_new_device=(e)=>{
+        if(e.currentTarget == e.target){
+            setIsAddDevice(false);
+        }
+    }
+
+    const getIsAddDevice=()=>{
+        if(!isAddDevice){return 'none'}
+        return '';
+    }
 
     return (
         <div className="center">
-            <h1 className="page-title">Devices</h1>
-            <p  className="test-btn" onClick={()=>logout()}>Logout</p>
+            <div style={{display:getIsAddDevice()}}><AddDeviceForm bgOnClick={(e)=>{close_add_new_device(e)}} setIsAddDevice={setIsAddDevice}/></div>
+            <div className='home-heading-continer'>
+            <div className='width-100 hover-pointer' ><AiOutlineSetting size="33px" color="#ECDBBA"  onClick={() => navigate('/Setting_Page', {replace: true})}/></div>
+                <div className='width-100'><h1 className="page-title">Devices</h1></div>
+                <div className='width-100 hover-pointer' ><MdAdd size="33px" color="#ECDBBA" onClick={open_add_new_device}/></div>
+            </div>
            
+            
+
             {/* list of items continer */}
             <div className="divcenter">
                 {displayItems_2()}
             </div>
-
-            <div className="buttom-nav-div divcenter">
-                <div className="buttom-nav-div-0">
-                    <div><AiOutlineSetting size="41px" /></div>
-                    <div><TbHome size="41px" /></div>
-                    <div><BiUser size="41px" /></div>
-                </div>
-            </div>
+            
         </div>
     );
 

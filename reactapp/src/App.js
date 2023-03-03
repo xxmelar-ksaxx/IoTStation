@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoutes from './ProtectedRoutes';
 import HomePage from './pages/HomePage'
+import SettingPage from './pages/SettingPage'
 
 // import PrivateRoute from './hocs/PrivateRoute';
 import Layout from './hocs/Layout'
@@ -32,6 +33,7 @@ function App() {
 
             <Route element={<ProtectedRoutes />} >
               <Route path='/home_devices' element={<HomePage />} />
+              <Route path='/Setting_Page' element={<SettingPage />} />
             </Route>
 
 

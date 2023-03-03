@@ -1,20 +1,19 @@
 .page-title{
     font-size: 30px;
-    color: #fff;
+    color: #ECDBBA;
 }
-.heading-div{
-    background-color: #0F2349;
-    width: 50%;
-    height: 30px;
-    position: relative;
-    
-    left:24%;
-    padding:1%;
-    border-radius: 14px;
-    color: #fff;
-    font-size:1.6em;
-    
+.home-heading-continer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15%;
+    width: 100%;
 }
+
+
+
+
+
 .flex{
     overflow:auto;
 }

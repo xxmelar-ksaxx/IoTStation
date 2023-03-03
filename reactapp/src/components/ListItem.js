@@ -4,12 +4,14 @@ import './css/globalStyles.css'
 
 // https requests
 import { send_device_update } from '../actions/devices';
+import { send_delete_device } from '../actions/devices';
 
 // icons Libs
 import { FaDoorClosed, FaDoorOpen } from "react-icons/fa";
 import { TiLockClosedOutline, TiLockOpenOutline } from "react-icons/ti";
 import { MdSignalWifiConnectedNoInternet0, MdSignalWifiStatusbar3Bar } from "react-icons/md";
-import { BsLightbulb, BsLightbulbOff } from "react-icons/bs";
+import { BsLightbulb, BsLightbulbOff, BsTrash } from "react-icons/bs";
+import { GrEdit } from "react-icons/gr";
 
 // https://mui.com/material-ui/react-switch/
 import Switch from '@mui/material/Switch';
@@ -17,16 +19,21 @@ import Switch from '@mui/material/Switch';
 import React, {useState} from "react";
 import { useEffect } from "react";
 import { connect } from 'react-redux';
+// import { Button } from '@mui/material';
+import Button from './Button';
+import AcceptForm from './AcceptForm';
 
 
-const ListItem = ({theItem, send_device_update}) => {
+const ListItem = ({theItem, send_device_update, send_delete_device}) => {
     const [uiUpdateTimer, setUiUpdateTimer]= useState(Date.now());
     const [isConnected, setIsConnected] = useState(false);
 
     const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+    const [isDeleteDevice, setIsDeleteDevice] = useState(false);
 
     const [bfirst_component_call, bsetfirst_component_call] =  useState(false);
     const [UI_updates_json, setUI_updates_json] =  useState({});
+
 
     // -------------------------------------------
     // Start-of -> Informative states Stuff
@@ -257,6 +264,9 @@ const ListItem = ({theItem, send_device_update}) => {
       }
 
     const main_menu_clicked=()=>{
+        /**
+         * open or close sub-menu
+         */
         if(!isSubMenuOpen){
             setIsSubMenuOpen(true);
             return null;
@@ -266,6 +276,9 @@ const ListItem = ({theItem, send_device_update}) => {
     }
 
     const getSubMenuIsOpen=()=>{
+        /**
+         * get form visiblity state, to show it or not
+         */
         if(!isSubMenuOpen){return 'none'}
         return '';
     }
@@ -286,9 +299,56 @@ const ListItem = ({theItem, send_device_update}) => {
           return () => clearInterval(interval);
     });
 
+    const delete_device = async e => {
+        /**
+         * send delete device request to server
+         */
+        let res = await send_delete_device(theItem.label, theItem.hw_id);
+        alert(res)
+    };
+
+    const getIsDeleteDevice=()=>{
+        /**
+         * get form visiblity state, to show it or not
+         */
+        if(!isDeleteDevice){return 'none'}
+        return '';
+    }
+    
+    const close_delete_device=(e)=>{
+        /**
+         * Close delete device form
+         */
+        if(e.currentTarget == e.target){
+            setIsDeleteDevice(false);
+        }
+    }
+
+    const isAcceptedDeleteForm=(e)=>{
+        /**
+         * see if user conforms to Remove the device.
+         */
+        if(e){
+            delete_device()
+        }
+        setIsDeleteDevice(false);
+    }
+
+    let deleteDeviceMsg="Are you sure you want to delete this device?";
+    let deleteDeviceMsg2="label: \""+theItem.label+"\"";
+    let deleteDeviceMsg3="ID: \""+theItem.hw_id+"\"";
     return (
         <div className="list-item-div">
-           
+           <div style={{display:getIsDeleteDevice()}}><AcceptForm 
+                bgOnClick={(e)=>{close_delete_device(e)}} 
+                formHeader="Remove device?"
+                msg={deleteDeviceMsg}
+                msg2={deleteDeviceMsg2}
+                msg3={deleteDeviceMsg3}
+                isAcceptedForm={isAcceptedDeleteForm}
+                />
+            </div>
+
             <div className="list-item-div-1">
 
                 <div onClick={main_menu_clicked}>
@@ -315,8 +375,13 @@ const ListItem = ({theItem, send_device_update}) => {
             </div>
             
             <div className="subMenuDiv" style={{display:getSubMenuIsOpen()}}>
-                <div>
-                    Edit|Delete|Log<br/>features
+                <div className="flex-hv-align width-25" style={{flexDirection:"column"}}>
+                    {/* <Button label="delete" type="button" onClick={(e)=>delete_device(e)}/> */}
+                    <GrEdit className="hover-pointer" size={'25px'}/>
+                    <br/>
+                    {/* <BsTrash className="hover-pointer" color={'#FF0000'} size={'25px'} onClick={(e)=>delete_device(e)} /> */}
+                    <BsTrash className="hover-pointer" color={'#FF0000'} size={'25px'} onClick={()=>{setIsDeleteDevice(true)}} />
+                    {/* Edit|Delete|Log<br/>features */}
                 </div>
                 <div style={{marginLeft:'auto'}}>
                     {prep_main_menu_items(theItem.HW_updates.m)}
@@ -333,4 +398,4 @@ const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, { send_device_update })(ListItem)
+export default connect(mapStateToProps, { send_device_update, send_delete_device })(ListItem)

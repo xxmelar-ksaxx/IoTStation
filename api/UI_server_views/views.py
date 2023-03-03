@@ -144,6 +144,7 @@ class GetUserProfileView(APIView):
 # ---------------------------------------------------------
 #        User Devices
 
+@method_decorator(csrf_protect, name='dispatch')
 class UserDevices(APIView):
     def get(self, request, format=None):
         try:
@@ -178,14 +179,20 @@ class UserDevices(APIView):
             label = data['label']
             hw_id = data['hw_id']
             device_access_key = data['access_key']
-        
+            try:
+                new_device= DLDevice.objects.get(user=user, hw_id=hw_id, device_access_key=device_access_key)
+                return Response({ 'error': 'Error: device alrady exsist !!' })    
+            except:
+                pass
+
             new_device= DLDevice.objects.create(user=user, label=label, hw_id=hw_id, device_access_key=device_access_key)
             new_device.save()
+            Device_Services.update_occurs(user)
             
-            return Response({ 'success': 'Added new Device successfully'})
+            return Response({ 'success': 'Success: Added new Device successfully'})
         except Exception as e:
             print(e)
-            return Response({ 'error': 'Something went wrong when adding new device' })
+            return Response({ 'error': 'Error: Something went wrong when adding new device' })
     
     def label_or_UI_update(data):
         try:
@@ -228,12 +235,19 @@ class UserDevices(APIView):
 
     def delete(self, request, format=None):
         try:
-            user = self.request.user
-            data = self.request.data
-            DLDevice.objects.filter(user=user, hw_id=data['namekey']).delete()
+            user = request.user
+            label = request.GET.get('label')
+            hw_id = request.GET.get('hw_id')
+            try:
+                DLDevice.objects.filter(user=user, label=label, hw_id=hw_id).delete()
+                Device_Services.update_occurs(user)
+                return Response({ 'success': 'Device Deleted successfully'})
+            except Exception as e:
+                print(e)
+                return Response({ 'error': 'Something went wrong when deleting a device' })
 
-            return Response({ 'success': 'Device Deleted successfully'})
-        except:
+        except Exception as e:
+            print(e)
             return Response({ 'error': 'Something went wrong when deleting a device' })
 
 class UserDevicesUpdates(APIView):

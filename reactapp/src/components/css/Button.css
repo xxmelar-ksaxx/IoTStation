@@ -16,8 +16,9 @@
 }
 
 .Button:hover {
-    background-color: #ffffff; 
-    border: 2px solid #FF961C;
+    /* background-color: #ffffff;  */
+    opacity: 50%;
+    border: 2px solid #000000;
     cursor: pointer;
   }
 
@@ -36,6 +37,16 @@ cursor: progress;
 .small{
   padding: 5px 16px;
 }
+
+.cancel{
+  background-color:#05F500;
+  border: 2px solid #05F500; 
+}
+.delete{
+  background-color:#FF0000; 
+  border: 2px solid #FF0000; 
+}
+
 
 .test-btn{
   background-color: #fff7022e;

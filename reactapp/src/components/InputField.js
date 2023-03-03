@@ -1,21 +1,27 @@
 import React, {useState, useEffect} from 'react'
-import PropTypes from "prop-types"
 import './css/InputField.css'
 
-
 const InputField = (props) => {
+    
 
     if (props.type=="text"){
+        var type = props.type
         var pattern="[A-Za-z0-9\_]{4,25}"
         var title="Only allowed (A-Z, a-z, 0-9, _ ), of at least 4 or more characters(max 24)"
     }else if(props.type=="password"){
+        var type = props.type
         var pattern="[A-Za-z0-9\_][^(^)^<^>^?^/^\\^\'^\x22]{5,}"
         var title="Only allowed (A-Z, a-z, 0-9, _, !, @, #, $, %, &, * ), of at least 6 or more characters"
     }
     else if(props.type=="devicekeys"){
-        props.type="text"
-        var pattern="[A-Z0-9]{6}"
-        var title="Only allowed (A-Z, 0-9 ), of 6 characters length"
+        var type = "text";
+        var pattern="[A-Z0-9]{6}";
+        var title="Only allowed (A-Z, 0-9 ), of 6 characters length";
+    }
+    else if(props.type=="labeltext"){
+        var type = "text";
+        var pattern="[A-Za-z0-9\_ ]{4,25}"
+        var title="Only allowed (A-Z, a-z, 0-9, _ ), of at least 4 or more characters(max 24)"
     }
 
     if(props.required===true){
@@ -24,7 +30,7 @@ const InputField = (props) => {
     else{
         var required_star='';
     }
-
+  
     return (
 
         <div className="InputField-div">
@@ -35,17 +41,22 @@ const InputField = (props) => {
                 <label id={props.id+"-check-label"} style={{display:"none", color:"red"}}></label>
 
             </div>
-            <input 
-                id={props.id}
-                className="InputField"
-                type={props.type}
-                placeholder={props.placeholder}
-                pattern={pattern}
-                title={title}
-                onChange={props.onChange}
-                name={props.name}
-                value={props.value}
-                required={props.required} />
+            <div style={{display:"flex"}}>
+
+                <input 
+                    id={props.id}
+                    className="InputField"
+                    type={type}
+                    placeholder={props.placeholder}
+                    pattern={pattern}
+                    title={title}
+                    onChange={props.onChange}
+                    name={props.name}
+                    value={props.value}
+                    required={props.required} 
+                />
+            </div>
+
         </div>
 
 

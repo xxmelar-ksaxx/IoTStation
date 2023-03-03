@@ -1,94 +1,91 @@
-import React, {useState, useEffect} from 'react'
-import {useNavigate} from 'react-router-dom';
+import React, {useState, useEffect, Component } from 'react'
+import {useNavigate, Navigate , Link } from 'react-router-dom';
 import '../pages/css/RegisterPage.css'
 import '../pages/css/LoginPage.css'
 import './css/globalStyles.css'
+import './css/forms.css'
 import InputField from './InputField';
 import Button from './Button';
+import { send_add_new_device} from '../actions/devices';
+import { connect } from 'react-redux';
 
-const AddDeviceForm = () => {
+const AddDeviceForm = (props) => {
     
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // code to run after render goes here
-    //    if(isInvalidCredintials===false || isInvalidCredintials===undefined){
-    //     document.getElementById('invalid-credentials').style.display = 'none';
-    //     }
+    const [formData, setFormData] = useState({
+        label: '',
+        hw_id: '',
+        access_key: ''
     });
 
-    function gotoLogin(e){
-        // history stack gets replaced with the new one, when replace = true.
-        navigate('/login', {replace: true}); 
+    const { label, hw_id, access_key } = formData;
+
+    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+    
+    const [isValidCredintials, setIsValidCredintials] = useState(true);
+
+    const getisValidCredintials=()=>{
+        if(isValidCredintials){return 'none'}
+        return '';
     }
 
-    const checkPasswordMatch = (e)=> {
-        let target_id="device-password-key-match-label"
-        let name_key = document.getElementById('device-name-key').value;
-        let password_key = document.getElementById('device-password-key').value;
-        if(password_key.length==6 && name_key.length==6){
-            if(verfyKeys(name_key,password_key)){
-                console.log('confirm password Ok')
-                document.getElementById(target_id).style.color = "#02f402";
-                document.getElementById(target_id).style.display = 'inline';
-                document.getElementById(target_id).innerHTML = 'Valid';
-                document.getElementById('register-button').disabled  = false;
-            }
-            else{
-                document.getElementById(target_id).style.color = '#ff0404';
-                document.getElementById(target_id).style.display = 'inline';
-                document.getElementById(target_id).innerHTML = 'Not Valid';
-                document.getElementById('register-button').disabled  = true;
-
-                console.log("not valid keys");
-            }
-        }
-    }
-
-    function verfyKeys(name_key, password_key){
-        if(name_key=='AAAAAA' && password_key=='SSSSSS')
-            return true;
-        else
-            return false;
-    }
-    function addSubmit(e){
-        alert('Submit is hit!!');
-    }
+    const onSubmit = async e => {
+        e.preventDefault();
+        let res = await props.send_add_new_device(formData);
+        alert(res)
+        props.setIsAddDevice(false);
+    };
 
     return (
-        <div className="bg-Absolute-Shadow">
+        <div className="hover-form-bg-continer" onClick={props.bgOnClick}>
+            <div className="Form-continer">
+                
+                <form onSubmit={e => onSubmit(e)}>
 
-        <div className="LoginForm" id="hi">
-            <p className="form-title inline">Register</p>
-            <br/>
-            <h5 id="invalid-credentials" className="form-error">invalid credinsials</h5>
-            
-            <form onSubmit={(e) => addSubmit(e)} method="get">
+                    <p className="form-title inline f-br">Add new device</p>
+                    <br/>
+                    <h5 className="form-error" style={{display: getisValidCredintials()}}>invalid credinsials</h5>
+                    <br/>
+                    <InputField 
+                        type="labeltext" 
+                        label="Label"
+                        onChange={e => onChange(e)}
+                        value={label}
+                        name="label"
+                        required={true}
+                    />
+                    <InputField 
+                        type="devicekeys" 
+                        label="ID"
+                        onChange={e => onChange(e)}
+                        value={hw_id}
+                        name="hw_id"
+                        required={true}
+                    />
+                    <InputField 
+                        type="devicekeys" 
+                        label="Access-Key"
+                        onChange={e => onChange(e)}
+                        name="access_key"
+                        required={true}
+                    />
+                    <br/>
+                    <span>Only allowed (A-Z, 0-9 ), of 6 characters length</span>
+                    <br/>
+                    <br/>
+                    <Button label="Add" type="submit"/>
+                    
+                </form>
 
-            <InputField type="text"  label="Username" required={true}/>
-            {/* <br/> */}
-            
-            <InputField id="device-name-key" type="devicekeys"  label="Device Name" required={true} 
-            onChange={(event) => checkPasswordMatch(event)} />
-            
-            <InputField id="device-password-key" type="devicekeys"  label="Device Key" 
-            required={true} onChange={(event) => checkPasswordMatch(event)} />
-            
-            {/* <p className="underFieldText" onClick={(event) => gotoLogin(event)}
-            >have an account? Login</p> */}
-            
-            <br/>
-
-            <Button id="register-button" label="Add" type="submit" />
-
-
-            </form>
-         
-        </div>
+            </div>
         </div>
 
     );
 
 }
+const mapStateToProps = state => ({
+    isAuthenticated: state.auth.isAuthenticated
+});
 
-export default AddDeviceForm
+export default connect(mapStateToProps, {send_add_new_device })(AddDeviceForm);
