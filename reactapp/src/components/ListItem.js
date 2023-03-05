@@ -364,7 +364,6 @@ const ListItem = ({theItem, send_device_update, send_delete_device}) => {
                     <div className="list-item-div-2">
                         <p>Device ID : {theItem.hw_id}</p>
                         <p>Last Update : {timeSince(theItem.last_update)}</p>
-                        <p>isSubMenuOpen : {getSubMenuIsOpen()}</p>
                     </div>
                 </div>
 
