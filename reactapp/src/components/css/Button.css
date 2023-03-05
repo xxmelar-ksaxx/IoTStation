@@ -46,7 +46,10 @@ cursor: progress;
   background-color:#FF0000; 
   border: 2px solid #FF0000; 
 }
-
+.accept{
+  background-color:#FF961C; 
+  border: 2px solid #FF961C;
+}
 
 .test-btn{
   background-color: #fff7022e;

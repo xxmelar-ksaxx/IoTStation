@@ -346,6 +346,7 @@ const ListItem = ({theItem, send_device_update, send_delete_device}) => {
                 msg2={deleteDeviceMsg2}
                 msg3={deleteDeviceMsg3}
                 isAcceptedForm={isAcceptedDeleteForm}
+                acceptBtnType="delete"
                 />
             </div>
 
@@ -384,6 +385,7 @@ const ListItem = ({theItem, send_device_update, send_delete_device}) => {
                     {/* Edit|Delete|Log<br/>features */}
                 </div>
                 <div style={{marginLeft:'auto'}}>
+                    {/* change this to prep sub menu later. now for testing only */}
                     {prep_main_menu_items(theItem.HW_updates.m)}
                 </div>
             </div>

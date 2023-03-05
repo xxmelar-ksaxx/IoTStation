@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from django.contrib import auth
 from rest_framework.response import Response
-from api.models import DLDevice
+from api.models import DLDevice, UserProfile
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
@@ -14,6 +14,7 @@ from api.Services.serializers import UserProfileSerializer,DeviceSerializer
 from rest_framework.authentication import BasicAuthentication
 from api.Services.Device_Services import Device_Services
 import os
+from datetime import datetime
 
 # ---------------------------------------------------------
 #        User Authentication
@@ -128,19 +129,42 @@ class GetUsersView(APIView):
 # ---------------------------------------------------------
 #        User Profile
 
-class GetUserProfileView(APIView):
+class UserProfileView(APIView):
     def get(self, request, format=None):
+        # get account access token
         try:
-            username = self.request.user.username
-            # user_profile = User.objects.get(username=username)
-            # user_profile = UserProfileSerializer(user_profile)
-
-            # used for additional User_Profile data [new model]
-            # return Response({ 'profile': user_profile.data, 'username': str(username) })
-            return Response({ 'username': str(username) })
+            user = request.user
+            try:
+                user_profile = UserProfile.objects.get(user=user)
+                user_profile=user_profile.access_token
+            except Exception:
+                # when user hsa no profile yet, create one.
+                temp_access_token="plese_change_your_tokn_"+str(datetime.now())
+                user_profile = UserProfile.objects.create(user=user, access_token=temp_access_token)
+                user_profile.save()
+            
+            return Response({ 'data': user_profile })
         except:
-            return Response({ 'error': 'Something went wrong when retrieving profile' })
-
+            return Response({ 'error': 'Something went wrong when retrieving user profile' })
+    
+    def put(self, request, format=None):
+        # update account access token
+        try:
+            user = request.user
+            access_token = request.data["access_token"]
+            try:
+                user_profile = UserProfile.objects.get(user=user)
+                user_profile.access_token=access_token
+                user_profile.save()
+            except Exception:
+                # when user hsa no profile yet, create one.
+                user_profile = UserProfile.objects.create(user=user, access_token=access_token)
+                user_profile.save()
+            
+            return Response({ 'success': 'User token updated successfully' })
+        except:
+            return Response({ 'error': 'Something went wrong when retrieving user profile' })
+        
 # ---------------------------------------------------------
 #        User Devices
 

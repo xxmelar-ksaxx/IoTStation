@@ -19,7 +19,7 @@ const AcceptForm = (props) => {
                     <br/>
                     <div className='flex-hv-align' style={{gap:"10%"}}>
                         <Button label="Cancel" onClick={()=>{props.isAcceptedForm(false)}} className="cancel" type="submit"/>
-                        <Button label="Remove" onClick={()=>{props.isAcceptedForm(true)}} className="delete" type="submit"/>
+                        <Button label={props.acceptBtnType} onClick={()=>{props.isAcceptedForm(true)}} className={props.acceptBtnType} type="submit"/>
                     </div>
 
             </div>

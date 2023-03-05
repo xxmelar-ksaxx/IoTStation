@@ -11,11 +11,38 @@ import { connect } from 'react-redux';
 import { MdKeyboardBackspace } from "react-icons/md";
 
 import Button from '../components/Button';
+import UpdateAccessTokenForm from '../components/UpdateAccessTokenForm';
 
 
 
 const SettingPage = ({isAuthenticated, logout, get_devices, has_update}) => {
     const navigate = useNavigate();
+
+    const [isAccessTokenVisable, setIsAccessTokenVisable]= useState(false)
+
+    const close_AccessTokenForm_byBg=(e)=>{
+        /**
+         * Close delete device form
+         */
+        if(e.currentTarget == e.target){
+            setIsAccessTokenVisable(false);
+        }
+    }
+    const close_AccessTokenForm=()=>{
+        /**
+         * Close delete device form
+         */
+        setIsAccessTokenVisable(false);
+    }
+    const getIsAccessTokenVisable=()=>{
+        /**
+         * get form visiblity state, to show it or not
+         */
+        if(!isAccessTokenVisable){return 'none'}
+        return '';
+    }
+
+
 
     return (
         <div className="center">
@@ -24,6 +51,18 @@ const SettingPage = ({isAuthenticated, logout, get_devices, has_update}) => {
                 <div className='width-100'><h1 className="page-title">Settings</h1></div>
                 <div className='width-100'></div>
             </div>
+
+            <div style={{display: getIsAccessTokenVisable()}}>
+                <UpdateAccessTokenForm 
+                    
+                    bgOnClick={(e)=>close_AccessTokenForm_byBg(e)}
+                    closeForm={close_AccessTokenForm}
+                />
+            </div>
+            <div>
+                <Button label="Account access token" type="button" onClick={()=>setIsAccessTokenVisable(true)} />
+            </div>
+
             <div>
                 <br/>
                 <br/>
