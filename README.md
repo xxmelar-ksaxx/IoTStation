@@ -8,6 +8,10 @@
 ### Make your own IoT devises, monitor and control them.
 IoTStation is a generalized system that let’s you create, monitor and control your IoT Devices. The main advantage of this system is that you only code your IoT Device, you don’t need to touch the back-end or front-end code, the system will represent the device features in a proper way.
 
+<p align="center">
+ <img src="images/homepage.PNG" width="300px" height="500px">
+ </p>
+
 ## Create your own IoT devices
 With IoTStation you only need to write software for the hardware side (ex: Arduino), add your own features like a door state [open, close], or a light switch [on, off]. Type and number of features does not matter here, the system can handle them with ease, that because the system communicate with hardware devises via a Specific JSON Structure, the system front-end and back-end can accept any thing as long as the data is within the Specific JSON Structure.
 
