@@ -1,0 +1,127 @@
+.li-continer{
+
+    display:inline-flex;
+    flex-wrap: wrap;
+    
+    justify-content: space-around;
+
+    background-color: bisque;
+    
+    /* size */
+    max-width: 100%;
+    /* width: 100%; */
+    min-width: 200px;
+    /* height:150px; */
+
+    /* positioning */
+    padding:10px;
+    margin: 3px 10px;
+
+
+    border-radius: 15px;
+    color: #000;
+}
+.continer-left-side{
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    height: 100%;
+    /* background-color: aquamarine; */
+}
+
+.continer-left-side:active{
+    background-color: aqua;
+}
+
+.li-lable-continer{
+    display: flex;
+    justify-content:space-between;
+
+    width: 100%;
+    /* background-color: aqua; */
+}
+.li-lable{
+    font-style: normal;
+    font-weight: 700;
+    font-size: 25px;
+}
+.li-connection-icon{
+    padding-right: 20px;
+}
+
+.li-info-font{
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 15px;
+    color: #817D7D;
+}
+
+.continer-right-side{
+    display: flex;
+    
+    /* positioning */
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-end;
+    
+    /* padding-right: 10px; */
+
+    width: 40%;
+}
+
+.sub-menu-container {
+    display: flex;
+    /* margin-top:10px; */
+
+    width: 100%;
+    height: 0;
+
+    opacity: 0;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+
+    border-top: 1px solid #0000001c;
+}
+
+.sub-menu-container.visible {
+    width: 100%;
+    height: 80px;
+
+    opacity: 1;
+    transition: all 1s ease-in-out;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.sub-menu-left-side{
+    display: flex;
+    /* positioning */
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+    width: 20%;
+}
+.sub-menu-right-side{
+    display: flex;
+    /* positioning */
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-end;
+    width:80%;
+}
+
+
+
+.simple-box{
+    background-color: rgb(252, 34, 26);
+    border:2px solid rgb(0, 0, 0);
+    width: 50px;
+    height:20px;
+    
+    margin:0;
+    padding:0;
+}
+
+
+

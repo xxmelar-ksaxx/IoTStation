@@ -1,0 +1,57 @@
+.Switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+    background-color: gray;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+  
+.Switch::before {
+    content: "";
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    
+    /* background-color: white; */
+
+    top: 1px;
+    left: 1px;
+    transition: transform 0.2s ease-in-out;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+  
+input[type="checkbox"]:checked + .Switch::before {
+    transform: translateX(30px);
+}
+
+input[type="checkbox"]:checked + .Switch {
+    background-color: rgb(12, 80, 227);
+}
+
+.light-true::before{
+    background-image: url("./img/light-on.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.light-false::before{
+    background-image: url("./img/light-off.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.switch-default::before{
+    background-color: white;
+}
