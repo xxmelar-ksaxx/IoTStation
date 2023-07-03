@@ -1,0 +1,23 @@
+.Button{
+    cursor: pointer;
+
+    background-color: #2e2e2e;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+.Button:hover{
+    background-color: #292929
+}
+.Button:active{
+    background-color: #2e2e2e
+}
+
+.LoginButton{
+    background-color: #1c56f7;
+}
+.LoginButton:hover{
+    background-color: #2f1ae7;
+}
+.LoginButton:active{
+    background-color: #1c56f7;
+}
