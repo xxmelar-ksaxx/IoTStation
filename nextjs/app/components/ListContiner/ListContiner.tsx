@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useState } from "react"
 import ListItem from "./ListItem/ListItem"
 const ListContiner=()=>{
     
@@ -71,9 +72,47 @@ const ListContiner=()=>{
         device,device2,device3
     ]
 
+    const [LastUpdate, setLastUpdate]=useState<string>('no time set yet!');
+    const [temp_device, setTemp_device]=useState<any>();
+
+    // SSE-Updates
+    useEffect(() => {
+        const source = new EventSource('/api/devices/sse-updates');
+        console.log("starting event sse")
+        
+        let stream_last_update=""
+
+        source.addEventListener('message', event => {
+            const message = event.data;
+            const json=JSON.parse(JSON.parse(message))
+            
+            if(json.last_update!=stream_last_update){
+                setLastUpdate(json.last_update.toString())
+                stream_last_update=json.last_update
+                
+                setTemp_device(json);
+                
+                console.table(json)
+                console.log("last update is updated")
+          }
+        });
+    
+        return () => {
+            source.close();
+            console.log("closed sse")
+
+        };
+    }, []);
+
+    useEffect(() => {
+        console.log("last update is updated  __   from useEffect")
+    },[LastUpdate])
+
+
+
     const listItems=(items:any)=>{
         const listItems= items.map((item:any)=>{
-            return (<ListItem json={item}/>)
+            return (<ListItem json={item} key={item.hw_id}/>)
         })
 
 

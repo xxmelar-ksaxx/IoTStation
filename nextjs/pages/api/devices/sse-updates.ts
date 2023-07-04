@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'stream';
+import {connection, getKey} from '@/pages/redis/redis'
     
 // stream of updates over SSE
 // API route for streaming SSE messages
@@ -13,9 +14,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     read() {},
   });
 
+  // Create redis connection
+  const db=connection(5) // databse 5
+
   // Send SSE messages to the client
-  setInterval(() => {
-    const data = `data: This is a server-sent event\n\n`;
+  setInterval(async () => {
+    const db_res = await getKey(db, "RVC8I9")
+    const json = JSON.stringify(db_res)
+    const data = `data: ${json}\n\n`;
     stream.push(data);
   }, 1000);
 
