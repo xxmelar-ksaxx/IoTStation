@@ -71,6 +71,7 @@ const ListContiner=()=>{
     const devices=[
         device,device2,device3
     ]
+    
 
     const [LastUpdate, setLastUpdate]=useState<string>('no time set yet!');
     const [temp_device, setTemp_device]=useState<any>();
