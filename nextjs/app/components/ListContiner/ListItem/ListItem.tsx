@@ -1,47 +1,17 @@
 'use client'
 import { useState } from 'react'
 import './css.css'
+import device_props_interface from './device_props_interface'
+import {controller_ui_provider} from './utils/controllers_UI_provider'
+import { informative_ui_provider } from './utils/informative_UI_provider'
 
-import Switch from '@/app/components/Switch/Switch'
-
-interface ListItemProps{
-    // id:string, //list index
-    json:{
-        hw_id:string,
-        label:string,
-        HW_updates:{
-            m?: {
-                i?:any,
-                c?:any
-          },
-            s?: {
-                i?: any,
-                c?: any
-          }
-        },
-        last_update?:string
-      }
-}
-
-const ListItem=(props:ListItemProps)=>{
+const ListItem=(props:device_props_interface)=>{
 
     const [isActiveSubMenu, setIsActiveSubMenu]= useState(false);
-    const [isChecked1, setIsChecked1]= useState(false);
 
     const handleClick=async()=>{
         if(isActiveSubMenu==true){setIsActiveSubMenu(false)}
         else{setIsActiveSubMenu(true)}
-
-        console.log("Click")
-
-    }
-
-    const handleChange =(e:any) => {
-        if(isChecked1){
-            setIsChecked1(false)
-        }else{
-            setIsChecked1(true)
-        }
     }
 
     function timeSince(last_update?:string) {
@@ -75,30 +45,42 @@ const ListItem=(props:ListItemProps)=>{
         return Math.floor(seconds) + " seconds";
     }
 
-    const handle_UI_update=(item:any) => {
-        const device_id=item.target.id.split('_')[1]
-        const controller_name=item.target.id.split('_').slice(2, 4 + 1).join('_')
-        console.log(controller_name)
-
-
-    }
-
-
     const mainMenuItems=(items:any)=>{
         const itemsList = Object.entries(items.m ?? {}).map(([key, value])=>{
             let resultItems:any=[];
-
-            if(key=='c'){
-                const controllersList = Object.entries(value ?? {}).map(([ckey, cvalue])=>{
-                    if(ckey.split('_')[0]=="switch"){
-                        return (<Switch id={`${props.json.hw_id}_${ckey}`} key={`${props.json.hw_id}_${ckey}`} type={ckey.split('_')[1]} isChecked={cvalue} onChange={handle_UI_update} />)
-                    }
+            if(key=='i'){
+                const controllersList = Object.entries(value ?? {}).map(([ikey, ivalue])=>{
+                    return informative_ui_provider(ikey, ivalue, props)
                 })
                 resultItems.push(controllersList)
             }
-
-
-
+            if(key=='c'){
+                const controllersList = Object.entries(value ?? {}).map(([ckey, cvalue])=>{
+                    return controller_ui_provider(ckey, cvalue, props)
+                })
+                resultItems.push(controllersList)
+            }
+            return resultItems
+        })
+        return (
+            itemsList
+        )
+    }
+    const subMenuItems=(items:any)=>{
+        const itemsList = Object.entries(items.s ?? {}).map(([key, value])=>{
+            let resultItems:any=[];
+            if(key=='i'){
+                const controllersList = Object.entries(value ?? {}).map(([ikey, ivalue])=>{
+                    return informative_ui_provider(ikey, ivalue, props)
+                })
+                resultItems.push(controllersList)
+            }
+            if(key=='c'){
+                const controllersList = Object.entries(value ?? {}).map(([ckey, cvalue])=>{
+                    return controller_ui_provider(ckey, cvalue, props)
+                })
+                resultItems.push(controllersList)
+            }
             return resultItems
         })
         return (
@@ -119,13 +101,14 @@ const ListItem=(props:ListItemProps)=>{
                 <div className="li-info-font">Last Updated: {timeSince(props.json.last_update)}</div>
             </div>
             <div className="continer-right-side">
-                <Switch id={`${props.json.hw_id}`} key={1} type="light" isChecked={isChecked1} onChange={handleChange} />
                 {mainMenuItems(props.json.HW_updates)}
 
             </div>
             <div className={`sub-menu-container ${isActiveSubMenu ? 'visible' : ''}`}>
                 <div className="sub-menu-left-side">Left</div>
-                <div className="sub-menu-right-side">Right</div>
+                <div className="sub-menu-right-side">
+                    {subMenuItems(props.json.HW_updates)}
+                </div>
             </div>
         </div>
     )

@@ -2,121 +2,77 @@
 import { useEffect, useState } from "react"
 import ListItem from "./ListItem/ListItem"
 const ListContiner=()=>{
-    
-    
-    
-    // Demo database record
-    const device={
-        hw_id:"ABC123",
-        label:"Room light 1",
-        HW_updates:{
-          m: {
-              i: {
-                  // door: true,
-                  // door_look: false
-              },
-              c: {
-                switch:true
-              }
-          },
-          s: {
-              i: null,
-              c: null
-          }
-        },
-        last_update:"2023-03-05T14:39:17.746690Z"
-    }
-    const device2={
-        hw_id:"ABC124",
-        label:"Room light 2",
-        HW_updates:{
-          m: {
-              i: {
-                  // door: true,
-                  // door_look: false
-              },
-              c: {
-                switch_light_1:false,
-                switch:true
-              }
-          },
-          s: {
-              i: null,
-              c: null
-          }
-        },
-        last_update:"2023-03-05T14:39:17.746690Z"
-    }
-    const device3={
-        hw_id:"ABC125",
-        label:"Room light 3",
-        HW_updates:{
-          m: {
-              i: {
-                  // door: true,
-                  // door_look: false
-              },
-              c: {
-                switch_light_1:false,
-                switch:true
-              }
-          },
-          s: {
-              i: null,
-              c: null
-          }
-        },
-        last_update:"2023-03-05T14:39:17.746690Z"
-    }
-    const devices=[
-        device,device2,device3
-    ]
-    
+ 
+    const [devices, setDevices]=useState<any>([]);
 
-    const [LastUpdate, setLastUpdate]=useState<string>('no time set yet!');
-    const [temp_device, setTemp_device]=useState<any>();
+    const update_devices_state=(json_row:any) => {
+        try{
+            const json=JSON.parse(json_row)
+            if(json[0]){
+                setDevices(json);
+            }
+        }catch{
+            console.log("update devices went wrong!")
+        }
+    }
+
+    function generateSafeRandomId(): string {
+        const length = 10;
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const crypto = window.crypto || (window as any).msCrypto;
+        let result = '';
+      
+        if (!crypto) {
+          throw new Error('Cryptographically secure random number generator unavailable');
+        }
+      
+        const values = new Uint32Array(length);
+        crypto.getRandomValues(values);
+      
+        for (let i = 0; i < length; i++) {
+          result += characters.charAt(values[i] % characters.length);
+        }
+      
+        return result;
+    }
 
     // SSE-Updates
     useEffect(() => {
-        const source = new EventSource('/api/devices/sse-updates');
+        const sse_user=generateSafeRandomId();
+        const source = new EventSource(`/api/devices/sse-updates?user=${sse_user}`, { withCredentials: true });
         console.log("starting event sse")
         
-        let stream_last_update=""
-
         source.addEventListener('message', event => {
             const message = event.data;
-            const json=JSON.parse(JSON.parse(message))
-            
-            if(json.last_update!=stream_last_update){
-                setLastUpdate(json.last_update.toString())
-                stream_last_update=json.last_update
-                
-                setTemp_device(json);
-                
-                console.table(json)
-                console.log("last update is updated")
-          }
+            console.log(`SSE: got updates!`);
+            update_devices_state(message);
         });
-    
+        const keepAliveInterval=setInterval(async ()=>{
+            try{
+                const keep_alive_res = await fetch(`/api/devices/sse-keep-alive?user=${sse_user}`)
+                if(keep_alive_res.status!=200) {
+                    source.close();
+                    clearInterval(keepAliveInterval)
+                    console.log("closed sse: keep-alive=false")
+                }
+            }catch{
+                source.close();
+                clearInterval(keepAliveInterval)
+                console.log("closed sse: keep-alive->faild to fetch")
+            }
+        }, 10000)
+
         return () => {
             source.close();
+            clearInterval(keepAliveInterval)
             console.log("closed sse")
-
         };
     }, []);
-
-    useEffect(() => {
-        console.log("last update is updated  __   from useEffect")
-    },[LastUpdate])
-
-
 
     const listItems=(items:any)=>{
         const listItems= items.map((item:any)=>{
             return (<ListItem json={item} key={item.hw_id}/>)
         })
-
-
         return listItems
     }
 

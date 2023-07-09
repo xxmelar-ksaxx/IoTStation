@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {background-color: #000; color: #fff}
+    </style>
+</head>
+<body>
+    <script>
+        
+        function get_current_time(){
+            // Create a new Date object to get the current time
+            const now = new Date();
+
+            // Get the hours, minutes, and seconds from the Date object
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // Format the time as hh:mm:ss
+            const time = `${hours.toString().padStart(2, '0')}:
+                        ${minutes.toString().padStart(2, '0')}:
+                        ${seconds.toString().padStart(2, '0')}`;
+            return time
+        }
+
+        function json_to_list_item(json){
+            // Create an unordered list element
+            const list = document.createElement('ul');
+
+            // Loop through the properties of the JavaScript object
+            for (const prop in json) {
+            // Create a list item element and set its text content to the property name and value
+            const listItem = document.createElement('li');
+            listItem.textContent = `${get_current_time()} ${prop}: ${json[prop]}`;
+            
+            // Append the list item to the unordered list
+            list.appendChild(listItem);
+            }
+
+            // Get the div element where we want to append the list
+            const div = document.getElementById('list');
+
+            // Append the unordered list to the div element
+            div.appendChild(list);
+        }
+        
+        const eventSource = new EventSource('/sse-updates');
+        console.log("stream started");
+        
+        eventSource.addEventListener('myevent', (event) => {
+            const data = JSON.parse(event.data.replace(/'/g, '"'));
+            console.log(data.data.m.c);
+            json_to_list_item(data.data.m.c);
+            json_to_list_item(data.data.m.i);
+            json_to_list_item(data.data.s.c);
+            json_to_list_item(data.data.s.i);
+        });
+    </script>
+    <div id="list">
+        HW_States:
+    </div>
+</body>
+</html>
