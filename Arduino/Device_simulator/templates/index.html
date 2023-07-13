@@ -51,7 +51,7 @@
         const eventSource = new EventSource('/sse-updates');
         console.log("stream started");
         
-        eventSource.addEventListener('myevent', (event) => {
+        eventSource.addEventListener('updates', (event) => {
             const data = JSON.parse(event.data.replace(/'/g, '"'));
             console.log(data.data.m.c);
             json_to_list_item(data.data.m.c);

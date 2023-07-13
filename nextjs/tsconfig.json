@@ -23,6 +23,10 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", 
+              "**/*.ts", 
+              "**/*.tsx",
+              ".next/types/**/*.ts",
+              "onStartUp/utils.js","sse-channel.d.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'stream';
 
-import {connection, setKey, setHash, del} from '@/pages/redis/redis'
-import Redis from 'ioredis';
-
+import connection from '@/libs/redis'
 
 // stream of updates over SSE
 // API route for streaming SSE messages
@@ -20,23 +18,20 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     read() {},
   });
 
-  // Create redis connections
-  const redisClient=new Redis({
-    host: 'localhost',
-    port: 6379,
-  });
-  
-  const devicesHashKey="devices"
+  const redis=connection;
+
+  // const devicesHashKey="devices"
   let intervalId: NodeJS.Timeout | null = null;
 
-  setHash(redisClient, user?.toString() || "" , true, "devices:sse:pipe")
+  redis.hset("devices:sse:pipe", user?.toString() || "", 'true');
 
   // Send SSE messages to the client
   let old_record=""
   intervalId = setInterval(async () => {
-    const last_update:any=await redisClient.hget("devices:info", "last_update")
+    const last_update:any=await redis.hget("devices:info", "last_update")
+
     if(last_update!=old_record) {
-      const hashData:any = await redisClient.hgetall(devicesHashKey);
+      const hashData:any = await connection.hgetall("devices")
       console.log("SSE: new record");
       old_record=last_update
       let json_list=[]
@@ -48,11 +43,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const data = `data: ${json}\n\n`;
       stream.push(data);
     }
-  }, 1000);
+  }, 100);
 
   const keep_alive_interval = setInterval(async() => {
-    const client_alive_time:any = parseInt(
-      await redisClient.hget("devices:sse:alive", user?.toString() || "")||"",10)
+    const timestamp= (await redis.hget("devices:sse:alive", user?.toString() || "")||"").toString();
+    const client_alive_time:any = parseInt( timestamp || "",10)
     
     if(Date.now()-(client_alive_time)>21000){
       stream.destroy();
@@ -60,11 +55,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         clearInterval(intervalId);
         clearInterval(keep_alive_interval);
       }
-      setHash(redisClient, user?.toString() || "" , false, "devices:sse:pipe")
-      // await redisClient.hdel("devices:sse:alive", user?.toString() || "");
-    }else{
+      await redis.hdel("devices:sse:pipe", user?.toString() || "")
+      await redis.hdel("devices:sse:alive", user?.toString() || "");
     }
-
   }, 5000);
 
   // Pipe the stream to the response object
@@ -78,5 +71,4 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
     console.log('SSE: client disconnected')
   });
-  
 }

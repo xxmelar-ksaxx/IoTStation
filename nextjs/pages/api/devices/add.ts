@@ -1,4 +1,4 @@
-import {connection, setHash} from '@/pages/redis/redis'
+import connection from '@/libs/redis'
 
 // add device
 export default async function handler(req:any, res:any) {
@@ -9,11 +9,11 @@ export default async function handler(req:any, res:any) {
         last_update:req.body.last_update,
         HW_updates:req.body.HW_updates
     }
-    const db=connection(0) // databse 5
+    const redis=connection;
     try{
-        setHash(db, data.hw_id, JSON.stringify(data))
+        redis.hset("devices", data.hw_id, JSON.stringify(data))
         // update tracker hash
-        setHash(db, "last_update", JSON.stringify(Date.now()), "devices:info")
+        redis.hset("devices:info", "last_update", JSON.stringify(Date.now()))
         res.status(200).json({"devices":data});
     }catch{
         res.status(400).json({"devices":"add new device failed!"});

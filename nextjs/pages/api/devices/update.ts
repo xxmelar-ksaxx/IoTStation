@@ -1,5 +1,4 @@
-import {connection, setHash, hget} from '@/pages/redis/redis'
-
+import connection from '@/libs/redis'
 
 // update device
 export default async function handler(req:any, res:any) {
@@ -8,17 +7,25 @@ export default async function handler(req:any, res:any) {
         t:req.body.t,
         u:req.body.u,
     }
-    const db=connection(0) // args -> databse number
-   
-    // update should hit HW, not local DB
-    let dict_value =JSON.parse(await hget(db,"devices", data.hw_id));
-    if(dict_value){
-        dict_value.HW_updates.m.c =req.body.u;
-        setHash(db, data.hw_id, JSON.stringify(dict_value))
-        // update tracker hash
-        setHash(db, "last_update", JSON.stringify(Date.now()), "devices:info")
-        res.status(200).json({"update":data});
-    }else{
-        res.status(400).json({"err":"device not found"});
+    const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    };
+    const redis=connection 
+    
+    // Sends updated data to HW directlly..
+    try{
+        const ipAddress = await redis.hget("devices:hw:alive", data.hw_id)
+        const res = await fetch(`http://${ipAddress}:5000/update`, options);
+        if(res.ok){
+            console.log(`device updated: ${data.hw_id}`)
+        }
+    }catch{
+        return res.status(400).json({"err":"device not found"});
     }
+    res.status(200).json({"update":data});
+
 }

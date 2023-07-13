@@ -1,5 +1,6 @@
 from threading import Thread
-from flask import Flask, Response, render_template, send_file, request
+import time
+from flask import Flask, Response, render_template, jsonify, send_file, request
 import requests
 import json
 import datetime
@@ -69,40 +70,11 @@ def prep_dics_to_send():
 
 
 
-
-
-data={"light_state":str(False)}
-
-def light_controller():
-    while True:
-        state=input("1-On  2-Off: ")
-        if(state=='1'):
-            data['light_state']=str(True)
-        elif(state=='2'):
-            data['light_state']=str(False)
-        sleep(1)
-
-def state_monitoring():
-    old_state=data
-    while True:
-        while old_state==data:pass
-        print("state changed")
-
-@app.route("/set", methods=["GET", "POST"])
-def setState():
-    req_data=json.loads((request.data).decode('utf-8'))
-    # print(req_data["light_state"])
-    global is_on_light_1
-    is_on_light_1=req_data["light_state"]
-    prep_dics_to_send()
-    return update_request_dic
-
-
 def update_controllers(updates_json):
     # // is_on_light_1 state update
-    if(updates_json.get("u").get("is_on_light_1")):
+    if(updates_json.get("u").get("switch_light_1")):
         global is_on_light_1
-        is_on_light_1=updates_json.get("u").get("is_on_light_1")
+        is_on_light_1=updates_json.get("u").get("switch_light_1")
         print(f"state updated: is_on_light_1: {is_on_light_1}")
 
 # distripute informative & controller state updates
@@ -119,7 +91,6 @@ def UI_updates():
     updates_json=json.loads((request.data).decode("utf-8"))
     updates_distriputer(updates_json)
     prep_dics_to_send()
-
     return {"state":"ok"}
 
 
@@ -127,17 +98,33 @@ def UI_updates():
 # SSE to send hardware updates
 @app.route('/sse-updates')
 def stream():
-    print("stream requested!!")
+    print("SSE:stream requested!!")
     def generate():
         prep_dics_to_send()
-        old_state=str(update_request_dic.copy())
+        old_state="none"
+        old_keep_alive_time= round(time.time() * 1000)
         while True:
-            yield f'event: myevent\ndata: {update_request_dic}\n\n'
-            while old_state==str(update_request_dic):pass
+            print("SSE: yields..")
+            yield f'event: updates\ndata: {json.dumps(update_request_dic)}\n\n'
+            while old_state==str(update_request_dic):
+              if(round(time.time() * 1000)-old_keep_alive_time>10000):
+                yield f'event: keepalive\ndata: alive\n\n'
+                old_keep_alive_time=round(time.time() * 1000)
+                  
             old_state=str(update_request_dic.copy())
-            # sleep(1)
     return Response(generate(), mimetype='text/event-stream')
 
+
+import socket   
+@app.route("/ping", methods=["POST","GET"])
+def pingRoute():
+    print("ping")
+    msg={"info":{
+        "org":"iotstation",
+        "id":auth_Device_id,
+        "type":"light",
+    }}
+    return msg
 
 @app.route("/")
 def defaultRoute():
@@ -146,5 +133,5 @@ def defaultRoute():
 
 
 if __name__=="__main__":
-    app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000)
+    # app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
