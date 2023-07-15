@@ -1,8 +1,9 @@
 'use client'
-import { useEffect, useState } from "react"
+import { useEffect, useState} from "react"
 import ListItem from "./ListItem/ListItem"
 const ListContiner=()=>{
- 
+    
+    const [connected,setConnected]=useState(false);
     const [devices, setDevices]=useState<any>([]);
 
     const update_devices_state=(json_row:any) => {
@@ -37,36 +38,49 @@ const ListContiner=()=>{
     }
 
     // SSE-Updates
+    let SSEStarted=false;
     useEffect(() => {
-        const sse_user=generateSafeRandomId();
-        const source = new EventSource(`/api/devices/sse-updates?user=${sse_user}`, { withCredentials: true });
-        console.log("starting event sse")
-        
-        source.addEventListener('message', event => {
-            const message = event.data;
-            console.log(`SSE: got updates!`);
-            update_devices_state(message);
-        });
-        const keepAliveInterval=setInterval(async ()=>{
-            try{
-                const keep_alive_res = await fetch(`/api/devices/sse-keep-alive?user=${sse_user}`)
-                if(keep_alive_res.status!=200) {
-                    source.close();
-                    clearInterval(keepAliveInterval)
-                    console.log("closed sse: keep-alive=false")
-                }
-            }catch{
-                source.close();
-                clearInterval(keepAliveInterval)
-                console.log("closed sse: keep-alive->faild to fetch")
-            }
-        }, 10000)
+        const startSSEUpdates=() => {
+            const sse_user=generateSafeRandomId();
+            const source = new EventSource(`/api/devices/sse-updates?user=${sse_user}`, { withCredentials: true });
+            console.log("starting event sse")
+            
+            source.addEventListener('message', event => {
+                const message = event.data;
+                console.log(`SSE: got updates!`);
+                update_devices_state(message);
+            });
+            source.addEventListener('open', event => {
+                setConnected(true)
+                console.log("SSE: connection opend !")
+            });
+            source.addEventListener('error', event => {
+                setConnected(false)
+                console.log("SSE: connection error !")
+            });
 
-        return () => {
-            source.close();
-            clearInterval(keepAliveInterval)
-            console.log("closed sse")
-        };
+            const keep_alive_checks=async()=>{
+                try{
+                    const keep_alive_res = await fetch(`/api/devices/sse-keep-alive?user=${sse_user}`)
+                    if(keep_alive_res.status!=200) {
+                        source.close();
+                        console.log("closed sse: keep-alive=false")
+                        setTimeout(startSSEUpdates,10000)
+                    }else{
+                        setTimeout(keep_alive_checks,10000)
+                    }
+                }catch{
+                    source.close();
+                    console.log("closed sse: keep-alive->faild to fetch")
+                    setTimeout(startSSEUpdates,10000)
+                }
+            }
+            setTimeout(keep_alive_checks,10000)
+        }
+        if(!SSEStarted){
+            SSEStarted=true;
+            startSSEUpdates()
+        }
     }, []);
 
     const listItems=(items:any)=>{
@@ -78,6 +92,7 @@ const ListContiner=()=>{
 
     return (
         <div className="flex flex-col justify-center">
+            connected:{connected.toString()}
             {listItems(devices)}
         </div>
     )
