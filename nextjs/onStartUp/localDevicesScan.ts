@@ -11,7 +11,7 @@ const identify_system_interfaces=async (ignore1octats:string[], valid3octats:str
    * @param valid3octats - [optional] only accept ip's that has these 3rd octats
    * @returns list of interfaces ip adresses (3 octats only, ex:192.168.0)
   **/
-  console.log("Identify System Network Interfaces...");
+  // console.log("Identify System Network Interfaces...");
   
   const INTERFACES_IPs=[]
   // Get the network interfaces
@@ -29,7 +29,7 @@ const identify_system_interfaces=async (ignore1octats:string[], valid3octats:str
         }
       }
     }
-  console.log(INTERFACES_IPs)
+  // console.log(INTERFACES_IPs)
   return INTERFACES_IPs
 }
 
@@ -40,8 +40,8 @@ const scan_local_network=async(systemInterfacesIPs:string[])=>{
    * @param systemInterfacesIPs - list of system network interfaces (3 octats only, ex:192.168.0)
    * @returns list of avalible ip addresses in the local network
   */
-  console.log("Scan Local Network...");
-  console.log(`scan with: ${systemInterfacesIPs.join(" @ ")}`);
+  // console.log("Scan Local Network...");
+  // console.log(`scan with: ${systemInterfacesIPs.join(" @ ")}`);
   const ipAddresses:any = [];
   for(let interfaceIP in systemInterfacesIPs) {
       const promises = [];
@@ -136,13 +136,13 @@ const monitor_HW_updates = (url: string, hw_id:any) => {
   let keepAliveTime=Date.now()
   const handle_HW_keep_alive=(event:any) => {
     keepAliveTime=Date.now()
-    console.log("sse: hw keep-alive..")
+    // console.log("sse: hw keep-alive..")
   }
   eventSource.addEventListener('keepalive', handle_HW_keep_alive);
 
   let keepAliveInterval=setInterval(async()=>{
     if(Date.now()-keepAliveTime>21000){
-      console.log("sse-closed: server not responding..!")
+      console.log("sse-closed: hw server not responding..!")
       eventSource.close();
       eventSource.removeEventListener('myevent', handle_HW_update_data);
       eventSource.removeEventListener('keepalive', handle_HW_keep_alive);
@@ -159,7 +159,6 @@ export const Scan_For_Devices=async()=>{
   const interfacesIPs=await identify_system_interfaces(['127','172'],['0','8'])
   const localIPs=await scan_local_network(interfacesIPs)
   const validDevicesIPs:any=await identify_devices(localIPs)
-  console.log(validDevicesIPs)
 
   for(let hw_id in validDevicesIPs){
     if(!(hw_id in Alive_HW_Devices)){
@@ -168,7 +167,7 @@ export const Scan_For_Devices=async()=>{
       const url=`http://${validDevicesIPs[hw_id]}:5000/sse-updates`
       monitor_HW_updates(url, hw_id)
     }else{
-      console.log(`device alrady there!! -> id: ${hw_id}`)
+      // console.log(`device alrady there!! -> id: ${hw_id}`)
     }
   }
 
@@ -177,12 +176,19 @@ export const Scan_For_Devices=async()=>{
   let json_list=[]
   for(let key in allDevices){
     if(key in validDevicesIPs){
-      console.log(`device detected at: ${validDevicesIPs[key]}  for id: ${key}`)
+      // console.log(`device detected at: ${validDevicesIPs[key]}  for id: ${key}`)
     }else{
-      console.log(`no device detected for id:${key}`)
+      // console.log(`no device detected for id:${key}`)
     }
     // const to_dict=JSON.parse(allDevices[key])
     // json_list.push(to_dict)
   }
 
+  setTimeout(Scan_For_Devices, 15000);
 }
+
+export const Start_Device_Discovary_Service=() => {
+  console.log("Device discovary...")
+  Scan_For_Devices()
+}
+export default Start_Device_Discovary_Service
