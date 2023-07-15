@@ -106,6 +106,9 @@ const handle_HW_update_data=async(event:any) => {
       dict_value.HW_updates.m.c =data.data.m.c;
       dict_value.HW_updates.s.i = data.data.s.i;
       dict_value.HW_updates.s.c =data.data.s.c;
+      
+      dict_value.last_update=Date.now();
+      dict_value.HW_updates.i=data.data.i; // device info
 
       await redis.hset("devices", dict_value.hw_id, JSON.stringify(dict_value));
       // update tracker hash
@@ -124,8 +127,18 @@ const handle_HW_update_data=async(event:any) => {
   }
 }
 
-const Alive_HW_Devices:any={};
+const set_connection_state=async(hw_id:any, state:string) => {
+  let dict_value;
+  try{
+    dict_value =JSON.parse(await redis.hget("devices", hw_id)||"");
+    // connection state
+    dict_value.HW_updates.i.connected=state;
+    await redis.hset("devices", dict_value.hw_id, JSON.stringify(dict_value));
+    await redis.hset("devices:info", "last_update", JSON.stringify(Date.now()));
+  }catch{}
+}
 
+const Alive_HW_Devices:any={};
 var EventSource = require('eventsource')
 const monitor_HW_updates = (url: string, hw_id:any) => {
 
@@ -144,15 +157,17 @@ const monitor_HW_updates = (url: string, hw_id:any) => {
     if(Date.now()-keepAliveTime>21000){
       console.log("sse-closed: hw server not responding..!")
       eventSource.close();
-      eventSource.removeEventListener('myevent', handle_HW_update_data);
+      eventSource.removeEventListener('updates', handle_HW_update_data);
       eventSource.removeEventListener('keepalive', handle_HW_keep_alive);
       delete Alive_HW_Devices[hw_id];
+      set_connection_state(hw_id, "false");
       await redis.del("devices:hw:alive",hw_id)
       clearInterval(keepAliveInterval);
     }
   },5000)
   
 };
+
 
 
 export const Scan_For_Devices=async()=>{
@@ -171,17 +186,15 @@ export const Scan_For_Devices=async()=>{
     }
   }
 
-  // TODO: update the connection state of the devices. Inital states are false.
+  // update the connection state of the devices.
   const allDevices = await redis.hgetall("devices")
-  let json_list=[]
   for(let key in allDevices){
     if(key in validDevicesIPs){
       // console.log(`device detected at: ${validDevicesIPs[key]}  for id: ${key}`)
     }else{
+      await set_connection_state(key, "false")
       // console.log(`no device detected for id:${key}`)
     }
-    // const to_dict=JSON.parse(allDevices[key])
-    // json_list.push(to_dict)
   }
 
   setTimeout(Scan_For_Devices, 15000);

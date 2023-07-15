@@ -1,5 +1,6 @@
 export interface ListItemProps{
     // id:string, //list index
+    SSEConnection:boolean,
     json:{
         hw_id:string,
         label:string,
@@ -11,6 +12,9 @@ export interface ListItemProps{
             s?: {
                 i?: any,
                 c?: any
+          },
+            i?: {
+              connected?: any
           }
         },
         last_update?:string

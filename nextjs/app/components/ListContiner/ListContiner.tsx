@@ -3,7 +3,7 @@ import { useEffect, useState} from "react"
 import ListItem from "./ListItem/ListItem"
 const ListContiner=()=>{
     
-    const [connected,setConnected]=useState(false);
+    const [SSEconnected,setSSEConnected]=useState(false);
     const [devices, setDevices]=useState<any>([]);
 
     const update_devices_state=(json_row:any) => {
@@ -11,6 +11,8 @@ const ListContiner=()=>{
             const json=JSON.parse(json_row)
             if(json[0]){
                 setDevices(json);
+            }else{
+                setDevices([]);
             }
         }catch{
             console.log("update devices went wrong!")
@@ -51,11 +53,11 @@ const ListContiner=()=>{
                 update_devices_state(message);
             });
             source.addEventListener('open', event => {
-                setConnected(true)
+                setSSEConnected(true)
                 console.log("SSE: connection opend !")
             });
             source.addEventListener('error', event => {
-                setConnected(false)
+                setSSEConnected(false)
                 console.log("SSE: connection error !")
             });
 
@@ -85,14 +87,14 @@ const ListContiner=()=>{
 
     const listItems=(items:any)=>{
         const listItems= items.map((item:any)=>{
-            return (<ListItem json={item} key={item.hw_id}/>)
+            return (<ListItem json={item} key={item.hw_id} SSEConnection={SSEconnected}/>)
         })
         return listItems
     }
 
     return (
         <div className="flex flex-col justify-center">
-            connected:{connected.toString()}
+            Connected-To-Server:{SSEconnected.toString()}
             {listItems(devices)}
         </div>
     )

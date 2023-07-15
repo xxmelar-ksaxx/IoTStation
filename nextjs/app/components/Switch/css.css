@@ -55,3 +55,11 @@ input[type="checkbox"]:checked + .Switch {
 .switch-default::before{
     background-color: white;
 }
+
+.disabled-true{
+    cursor: pointer;
+    opacity: 50%;
+}
+.disabled-false{
+    cursor: pointer;
+}

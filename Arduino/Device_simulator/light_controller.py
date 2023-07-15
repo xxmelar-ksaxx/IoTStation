@@ -17,7 +17,7 @@ app.register_blueprint(sse, url_prefix='/stream')
 is_on_light_1=str(False)
 
 # Auth
-auth_Device_id="AAS34S"
+auth_Device_id="A2"
 auth_Device_access_key="UEY734"
 
 # // timestamp tracker
@@ -27,6 +27,7 @@ device_last_update_date=""
 update_request_dic={}
 auth_dic={}
 HW_data_dic={}
+info_dic={}
 main_menu_dic={}
 sub_menu_dic={}
 main_informative_states_dic={}
@@ -44,7 +45,9 @@ def prep_dics_to_send():
 
 #   // -- desired controller states ex:
   main_controller_states_dic["switch_light_1"]=is_on_light_1
-  
+
+#  // -- backend related, DON'T TOUCH IT!
+  info_dic["connected"]="true" # // refers to connection state
   
 #   // i = informative_states
   main_menu_dic["i"] = main_informative_states_dic
@@ -58,6 +61,8 @@ def prep_dics_to_send():
   HW_data_dic["m"]= main_menu_dic
 #   // s = sub_menu
   HW_data_dic["s"]= sub_menu_dic
+#  // i = info_dic
+  HW_data_dic["i"]= info_dic
 
 
 

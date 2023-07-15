@@ -1,0 +1,16 @@
+.connection-true{
+    background-image: url("./img/connection-true.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    width:30px;
+    height: 30px;
+}
+.connection-false{
+    background-image: url("./img/connection-false.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    width:30px;
+    height: 30px;
+}

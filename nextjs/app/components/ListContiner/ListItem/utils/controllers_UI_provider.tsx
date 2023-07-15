@@ -30,6 +30,7 @@ const ui_switch=(
         id={`${props.json.hw_id}_${controller_type}`}
         key={`${props.json.hw_id}_${controller_type}`} 
         type={controller_type.split('_')[1]} 
+        disabled={(props.SSEConnection&&props.json.HW_updates.i?.connected.toString()=='true'?false:true)}
         isChecked={controller_value=='true' ? true : false} 
         onChange={(e)=>ui_switch_action(e, (controller_value.toString()=='true'? 'false':'true'), props)} />)
     

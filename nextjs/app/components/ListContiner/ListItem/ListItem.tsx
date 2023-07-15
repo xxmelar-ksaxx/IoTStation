@@ -4,6 +4,7 @@ import './css.css'
 import device_props_interface from './device_props_interface'
 import {controller_ui_provider} from './utils/controllers_UI_provider'
 import { informative_ui_provider } from './utils/informative_UI_provider'
+import ConnectionIcon from '../../ConnectionIcon/ConnectionIcon'
 
 const ListItem=(props:device_props_interface)=>{
 
@@ -19,7 +20,7 @@ const ListItem=(props:device_props_interface)=>{
          * takes time in ms,
          * Returns last update in sec, min, hr, day, etc...
          */
-        var seconds = Math.floor((Date.now()-(last_update ? Date.parse(last_update): Date.now())) / 1000);
+        var seconds = Math.floor((Date.now()-(last_update ? parseInt(last_update): Date.now())) / 1000);
       
         var interval = seconds / 31536000;
       
@@ -94,7 +95,7 @@ const ListItem=(props:device_props_interface)=>{
                 <div className="li-lable-continer" id="li-lable">
                     <div className="li-lable">{props.json.label}</div>
                     <div className="li-connection-icon">
-                        icon
+                        <ConnectionIcon connection={(props.SSEConnection&&props.json.HW_updates.i?.connected.toString()=='true'?'true':'false')}/>
                     </div>
                 </div>
                 <div className="li-info-font">Devide ID: {props.json.hw_id}</div>

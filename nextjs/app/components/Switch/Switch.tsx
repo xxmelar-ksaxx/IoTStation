@@ -7,6 +7,7 @@ interface SwitchProps{
     type?: string
     isChecked?: boolean,
     onChange?: (...args: any[]) => any;
+    disabled: boolean
 }
 
 const SwitchPropsDefaults = {
@@ -16,11 +17,17 @@ const SwitchPropsDefaults = {
 }
 
 const Switch=(props:SwitchProps)=>{
-    const inputRef = useRef(null);
     return (
         <div>
-            <input type="checkbox" id={`switch_${props.id}`} checked={props.isChecked} onChange={props.onChange||SwitchPropsDefaults.onChange}/>
-            <label htmlFor={`switch_${props.id}`} className={`Switch ${props.type? (props.type||"")+"-"+(props.isChecked?.toString()||""):"switch-default"}`}></label>
+            <input 
+                type="checkbox" 
+                id={`switch_${props.id}`} 
+                checked={props.isChecked} 
+                onChange={props.onChange||SwitchPropsDefaults.onChange} 
+                disabled={props.disabled}/>
+            <label 
+                htmlFor={`switch_${props.id}`} 
+                className={`Switch ${props.type? (props.type||"")+"-"+(props.isChecked?.toString()||""):"switch-default"} disabled-${props.disabled}`}></label>
         </div>
     )
 }
