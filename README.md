@@ -94,3 +94,7 @@ const toAllowThirdOctat=['0','8']; // allow x.x.0.x and x.x.8.x
 
 - Version 1.0 (Old Framework): This version was built using **Django** framework and includes the following tools: React, SQLLite, Arduino, Python
 - Version 2.0 (New Framework): This version has been migrated to **NextJS** and includes the following tools: React, Redis, Arduino, Python, TypeScript, Tailwind
+
+
+## License
+[GNU General Public License v3.0](LICENSE) or later
