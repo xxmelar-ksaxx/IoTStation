@@ -18,12 +18,13 @@ export default async function handler(req:any, res:any) {
     
     // Sends updated data to HW directlly..
     try{
-        const ipAddress = await redis.hget("devices:hw:alive", data.hw_id)
+        const ipAddress = await redis.hget("devices:hw:alive", data.hw_id);
         const res = await fetch(`http://${ipAddress}:5000/update`, options);
         if(res.ok){
-            console.log(`device updated: ${data.hw_id}`)
+            console.log(`UI: user updated device -> ${data.hw_id}`)
         }
     }catch{
+        console.log(`UI: user updated device Failed!! -> ${data.hw_id}`)
         return res.status(400).json({"err":"device not found"});
     }
     res.status(200).json({"update":data});

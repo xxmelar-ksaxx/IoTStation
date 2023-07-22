@@ -2,6 +2,11 @@ import { networkInterfaces } from 'os';
 import ping from 'ping';
 import connection from '@/libs/redis'
 
+const toIgnoreFirstOctat=['127','172']; // ignore 127.x.x.x and 172.x.x.x
+const toAllowThirdOctat=['0','8']; // allow x.x.0.x and x.x.8.x
+
+
+
 const redis=connection;
 
 const identify_system_interfaces=async (ignore1octats:string[], valid3octats:string[])=>{
@@ -76,16 +81,10 @@ const identify_devices=async(ipAdresses:string[])=>{
       const res = await fetch(`http://${ipAdresses[ip]}:5000/ping`);
       if(res.ok){
         const json:any = await res.json();
-        // console.log(`ip:${ipAdresses[ip]}\n${json.info.id}`);
-        // const device={
-        //   id:json.info.id,
-        //   ip:ipAdresses[ip]
-        // }
         validDevicesIPs[json.info.id]=ipAdresses[ip]
-        // validDevicesIPs.push(ipAdresses[ip]);
       }
     }catch{
-      console.log(`No iotStation device found..! `)
+      // console.log(`No iotStation device found..! `)
     }
   }
   return validDevicesIPs
@@ -93,7 +92,7 @@ const identify_devices=async(ipAdresses:string[])=>{
 
 
 const handle_HW_update_data=async(event:any) => {
-  console.log("recived updates from HW")
+  // console.log("recived updates from HW")
   const data = JSON.parse(event.data.replace(/'/g, '"'));
   let dict_value;
   try{
@@ -140,7 +139,7 @@ const set_connection_state=async(hw_id:any, state:string) => {
 
 const Alive_HW_Devices:any={};
 var EventSource = require('eventsource')
-const monitor_HW_updates = (url: string, hw_id:any) => {
+const monitor_HW_updates = async(url: string, hw_id:any) => {
 
   const eventSource = new EventSource(url);
   
@@ -149,59 +148,71 @@ const monitor_HW_updates = (url: string, hw_id:any) => {
   let keepAliveTime=Date.now()
   const handle_HW_keep_alive=(event:any) => {
     keepAliveTime=Date.now()
-    // console.log("sse: hw keep-alive..")
+    // console.log(`sse-hw: keep-alive.. ${keepAliveTime}`)
   }
   eventSource.addEventListener('keepalive', handle_HW_keep_alive);
-
-  let keepAliveInterval=setInterval(async()=>{
-    if(Date.now()-keepAliveTime>21000){
-      console.log("sse-closed: hw server not responding..!")
-      eventSource.close();
-      eventSource.removeEventListener('updates', handle_HW_update_data);
-      eventSource.removeEventListener('keepalive', handle_HW_keep_alive);
-      delete Alive_HW_Devices[hw_id];
-      set_connection_state(hw_id, "false");
-      await redis.del("devices:hw:alive",hw_id)
-      clearInterval(keepAliveInterval);
-    }
-  },5000)
   
+  // TODO: change it to timeout
+  const keepAliveInterval=async()=>{
+    if(Date.now()-keepAliveTime<21000){
+      setTimeout(keepAliveInterval, 5000);
+      return;
+    }
+    // console.log("sse-closed: hw server not responding..!")
+    eventSource.close();
+    eventSource.removeEventListener('updates', handle_HW_update_data);
+    eventSource.removeEventListener('keepalive', handle_HW_keep_alive);
+    delete Alive_HW_Devices[hw_id];
+    set_connection_state(hw_id, "false");
+    // await redis.del("devices:hw:alive",hw_id)
+    console.log(`deleted Alive_HW_Device -> ${hw_id} || at: ${Date.now()}`)
+    
+  }
+  setTimeout(keepAliveInterval, 5000);
 };
 
 
-
+// TODO: not scaning after deletion!!!
 export const Scan_For_Devices=async()=>{
-  const interfacesIPs=await identify_system_interfaces(['127','172'],['0','8'])
-  const localIPs=await scan_local_network(interfacesIPs)
-  const validDevicesIPs:any=await identify_devices(localIPs)
-
-  for(let hw_id in validDevicesIPs){
-    if(!(hw_id in Alive_HW_Devices)){
-      Alive_HW_Devices[hw_id]=hw_id
-      await redis.hset("devices:hw:alive", hw_id, validDevicesIPs[hw_id]);
-      const url=`http://${validDevicesIPs[hw_id]}:5000/sse-updates`
-      monitor_HW_updates(url, hw_id)
-    }else{
-      // console.log(`device alrady there!! -> id: ${hw_id}`)
+  let scan_switch=true;
+  while (scan_switch){
+    const interfacesIPs=await identify_system_interfaces(toIgnoreFirstOctat, toAllowThirdOctat)
+    const localIPs=await scan_local_network(interfacesIPs)
+    const validDevicesIPs:any=await identify_devices(localIPs)
+    // console.log('validDevicesIPs: %O',validDevicesIPs)
+    for(let hw_id in validDevicesIPs){
+      if(!(hw_id in Alive_HW_Devices)){
+        Alive_HW_Devices[hw_id]=hw_id
+        await redis.hset("devices:hw:alive", hw_id, validDevicesIPs[hw_id]);
+        const url=`http://${validDevicesIPs[hw_id]}:5000/sse-updates`
+        monitor_HW_updates(url, hw_id)
+        console.log(`set Alive_HW_Device -> ${hw_id}`)
+      }else{
+        // console.log(`device alrady there!! -> id: ${hw_id}`)
+      }
     }
-  }
 
-  // update the connection state of the devices.
-  const allDevices = await redis.hgetall("devices")
-  for(let key in allDevices){
-    if(key in validDevicesIPs){
-      // console.log(`device detected at: ${validDevicesIPs[key]}  for id: ${key}`)
-    }else{
-      await set_connection_state(key, "false")
-      // console.log(`no device detected for id:${key}`)
+    // update the connection state of the devices.
+    const allDevices = await redis.hgetall("devices")
+    for(let key in allDevices){
+      if(key in validDevicesIPs){
+        // console.log(`device detected at: ${validDevicesIPs[key]}  for id: ${key}`)
+      }else{
+        await set_connection_state(key, "false")
+        // console.log(`no device detected for id:${key}`)
+      }
     }
+    await new Promise(resolve => setTimeout(resolve, 15000));
   }
-
-  setTimeout(Scan_For_Devices, 15000);
+  // setTimeout(Scan_For_Devices, 15000);
 }
 
 export const Start_Device_Discovary_Service=() => {
-  console.log("Device discovary...")
-  Scan_For_Devices()
+  try{
+    console.log("Device discovary...")
+    Scan_For_Devices()
+  }catch{
+    console.log("ERROR: Device Discovary Failed..!")
+  }
 }
 export default Start_Device_Discovary_Service

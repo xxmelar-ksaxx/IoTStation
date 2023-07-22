@@ -32,7 +32,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if(last_update!=old_record) {
       const hashData:any = await connection.hgetall("devices")
-      console.log(`SSE: new record, client-> ${user}`);
+      // console.log(`SSE: new record, client-> ${user}`);
       old_record=last_update
       let json_list=[]
       for(let key in hashData){

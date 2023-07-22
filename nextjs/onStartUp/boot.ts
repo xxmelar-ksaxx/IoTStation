@@ -1,6 +1,5 @@
 const bootedServices = {
     deviceDiscovaryService: false,
-    example2: false,
 };
 
 const loop=async()=>{
@@ -26,17 +25,6 @@ if (!bootedServices.deviceDiscovaryService) {
     }, 10);
     });
 }
-
-// Example2 service...
-// if (!bootedServices.example2) {
-//     console.log('[pages/api/_boot.ts] => EXAMPLE2');
-
-//     bootedServices.example2 = await new Promise<boolean>(resolve => {
-//     setTimeout(() => {
-//         resolve(true);
-//     }, 1000);
-//     });
-// }
 
 return bootedServices;
 };
