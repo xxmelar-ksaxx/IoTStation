@@ -83,7 +83,7 @@ const char* auth_wifi_password="Your_WIFI_Password";
 String auth_Device_id="A1"; // id of your choice
 String auth_Device_access_key="ASD123"; //access_key of your choice
 ```
-Also, you need to specify what local ip addresses rages are allowed to scan for devices on them. modify default values to your preference. find it in `nextjs\onStartUp\localDevicesScan.ts`
+Also, you need to specify what local ip addresses ranges are allowed to scan for devices on them. modify default values to your preference. find it in `nextjs\onStartUp\localDevicesScan.ts`
 ```
 const toIgnoreFirstOctat=['127','172']; // ignore 127.x.x.x and 172.x.x.x
 const toAllowThirdOctat=['0','8']; // allow x.x.0.x and x.x.8.x
