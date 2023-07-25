@@ -7,7 +7,7 @@
 
 // Light state
 int light_1_state_on_off_pin_number = 0; // Degital Signal Pin 0 (3 in HW label)
-bool is_on_light_1=true;
+bool is_on_light_1=false;
 
 void pins_setup(){
   pinMode(light_1_state_on_off_pin_number, OUTPUT);

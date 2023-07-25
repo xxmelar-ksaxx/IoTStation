@@ -67,7 +67,7 @@ void webServer_setup(){
 unsigned long old_time_ms = millis();
 char keep_alive_json_char[256] = "{\"data\":\"alive\"}";
 void brodcast_keep_alive(){
-  if ((millis()-old_time_ms)>5000){
+  if ((millis()-old_time_ms)>3000){
     old_time_ms = millis();
     events.send(keep_alive_json_char, "keepalive", millis());
   }
