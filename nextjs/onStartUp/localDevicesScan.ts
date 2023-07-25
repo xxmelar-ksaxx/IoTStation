@@ -5,9 +5,14 @@ import connection from '@/libs/redis'
 const toIgnoreFirstOctat=['127','172']; // ignore 127.x.x.x and 172.x.x.x
 const toAllowThirdOctat=['0','8']; // allow x.x.0.x and x.x.8.x
 
-
+const scanInterval_ms=5000; // Scan for devices in local network delay
+const keepAliveInterval_ms=3000 // Check hw sends keep-alive ping delay
 
 const redis=connection;
+
+const Alive_HW_Devices:any={};
+
+
 
 const identify_system_interfaces=async (ignore1octats:string[], valid3octats:string[])=>{
   /**
@@ -68,15 +73,20 @@ const scan_local_network=async(systemInterfacesIPs:string[])=>{
   return ipAddresses;
 }
 
-const identify_devices=async(ipAdresses:string[])=>{
+const identify_devices=async(ipAdresses:string[], ignoreIpAdresses:string[])=>{
   /**
    * Ping ip adresses to identify if they're IoT Devices
    * 
    * @param ipAdresses - list of IP addresses
+   * @param ignoreIpAdresses - dictionary of alrady connected alive devices IP addresses
    * @returns JSON of devices info, with ip addresses
    */
   const validDevicesIPs=[];
   for(let ip in ipAdresses){
+    // ignore alrady connected alive devices
+    if(Object.values(ignoreIpAdresses).includes(ipAdresses[ip])){
+      continue;
+    }
     try{
       const res = await fetch(`http://${ipAdresses[ip]}:5000/ping`);
       if(res.ok){
@@ -137,7 +147,6 @@ const set_connection_state=async(hw_id:any, state:string) => {
   }catch{}
 }
 
-const Alive_HW_Devices:any={};
 var EventSource = require('eventsource')
 const monitor_HW_updates = async(url: string, hw_id:any) => {
 
@@ -154,8 +163,8 @@ const monitor_HW_updates = async(url: string, hw_id:any) => {
   
   // TODO: change it to timeout
   const keepAliveInterval=async()=>{
-    if(Date.now()-keepAliveTime<21000){
-      setTimeout(keepAliveInterval, 5000);
+    if(Date.now()-keepAliveTime<10000){
+      setTimeout(keepAliveInterval, keepAliveInterval_ms);
       return;
     }
     // console.log("sse-closed: hw server not responding..!")
@@ -163,12 +172,12 @@ const monitor_HW_updates = async(url: string, hw_id:any) => {
     eventSource.removeEventListener('updates', handle_HW_update_data);
     eventSource.removeEventListener('keepalive', handle_HW_keep_alive);
     delete Alive_HW_Devices[hw_id];
-    set_connection_state(hw_id, "false");
+    await set_connection_state(hw_id, "false");
     // await redis.del("devices:hw:alive",hw_id)
-    console.log(`deleted Alive_HW_Device -> ${hw_id} || at: ${Date.now()}`)
+    // console.log(`deleted Alive_HW_Device -> ${hw_id} || at: ${Date.now()}`)
     
   }
-  setTimeout(keepAliveInterval, 5000);
+  setTimeout(keepAliveInterval, keepAliveInterval_ms);
 };
 
 
@@ -178,15 +187,15 @@ export const Scan_For_Devices=async()=>{
   while (scan_switch){
     const interfacesIPs=await identify_system_interfaces(toIgnoreFirstOctat, toAllowThirdOctat)
     const localIPs=await scan_local_network(interfacesIPs)
-    const validDevicesIPs:any=await identify_devices(localIPs)
+    const validDevicesIPs:any=await identify_devices(localIPs, Alive_HW_Devices)
     // console.log('validDevicesIPs: %O',validDevicesIPs)
     for(let hw_id in validDevicesIPs){
       if(!(hw_id in Alive_HW_Devices)){
-        Alive_HW_Devices[hw_id]=hw_id
+        Alive_HW_Devices[hw_id]=validDevicesIPs[hw_id]
         await redis.hset("devices:hw:alive", hw_id, validDevicesIPs[hw_id]);
         const url=`http://${validDevicesIPs[hw_id]}:5000/sse-updates`
         monitor_HW_updates(url, hw_id)
-        console.log(`set Alive_HW_Device -> ${hw_id}`)
+        console.log(`conn ok: Set Alive_HW_Device -> ${hw_id}`)
       }else{
         // console.log(`device alrady there!! -> id: ${hw_id}`)
       }
@@ -195,14 +204,14 @@ export const Scan_For_Devices=async()=>{
     // update the connection state of the devices.
     const allDevices = await redis.hgetall("devices")
     for(let key in allDevices){
-      if(key in validDevicesIPs){
+      if(key in Alive_HW_Devices){
         // console.log(`device detected at: ${validDevicesIPs[key]}  for id: ${key}`)
       }else{
         await set_connection_state(key, "false")
         // console.log(`no device detected for id:${key}`)
       }
     }
-    await new Promise(resolve => setTimeout(resolve, 15000));
+    await new Promise(resolve => setTimeout(resolve, scanInterval_ms));
   }
   // setTimeout(Scan_For_Devices, 15000);
 }
