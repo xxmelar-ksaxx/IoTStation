@@ -72,6 +72,8 @@ We used Server-Sent-Events (SSE) to send device updates. And a POST request to u
 
 ![Screenshot](images/architecture.png)
 
+## Requirements
+- Redis
 
 ## Setup
 
