@@ -1,10 +1,12 @@
 import './css.css'
 interface InputProps{
     lable?:string,
+    value?:string,
     placeholder?:string,
     className?:string,
     IclassName?:string,
     LclassName?:string,
+    onChange?: (...args: any[]) => any;
 }
 
 const InputPropsDefaults:InputProps={
@@ -24,8 +26,10 @@ const Input=(props:InputProps) =>{
             </div>
             <input 
                 type="text"
+                value={props.value}
                 placeholder={(props.placeholder || InputPropsDefaults.placeholder)}
-                className={`flex Input ${props.IclassName || InputPropsDefaults.IclassName}`} />
+                className={`flex Input ${props.IclassName || InputPropsDefaults.IclassName}`} 
+                onChange={props.onChange}/>
         </div>
     )
 }

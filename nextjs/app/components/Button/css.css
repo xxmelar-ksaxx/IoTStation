@@ -21,3 +21,13 @@
 .LoginButton:active{
     background-color: #1c56f7;
 }
+
+.FormSubmitButton{
+    background-color: #d79505;
+}
+.FormSubmitButton:hover{
+    background-color: #ffb005;
+}
+.FormSubmitButton:active{
+    background-color: #da9604;
+}

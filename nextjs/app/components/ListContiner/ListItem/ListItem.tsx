@@ -5,6 +5,8 @@ import device_props_interface from './device_props_interface'
 import {controller_ui_provider} from './utils/controllers_UI_provider'
 import { informative_ui_provider } from './utils/informative_UI_provider'
 import ConnectionIcon from '../../ConnectionIcon/ConnectionIcon'
+import AcceptForm from '../../AcceptForm/AcceptForm'
+import RenameDevice from './RenameDevice/RenameDevice'
 
 const ListItem=(props:device_props_interface)=>{
 
@@ -89,6 +91,7 @@ const ListItem=(props:device_props_interface)=>{
         )
     }
 
+
     return (
         <div className="li-continer">
             <div className="continer-left-side" onClick={handleClick}>
@@ -106,7 +109,9 @@ const ListItem=(props:device_props_interface)=>{
 
             </div>
             <div className={`sub-menu-container ${isActiveSubMenu ? 'visible' : ''}`}>
-                <div className="sub-menu-left-side">Left</div>
+                <div className="sub-menu-left-side">
+                    <RenameDevice id={props.json.hw_id} label={props.json.label}/>
+                </div>
                 <div className="sub-menu-right-side">
                     {subMenuItems(props.json.HW_updates)}
                 </div>

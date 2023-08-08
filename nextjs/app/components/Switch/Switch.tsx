@@ -1,6 +1,5 @@
 'use client'
 import './css.css'
-import { useRef } from 'react';
 
 interface SwitchProps{
     id: string
