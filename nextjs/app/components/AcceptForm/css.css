@@ -1,7 +1,13 @@
+.Accept-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #000000e8;
+    padding: 8% 3% 8% 3%;
+    height: 100%;
+}
 .Accept-form-msg{
-    
     color: #fff;
-    max-width: 70%;
-
+    max-width: 100%;
     text-align: center;
 }

@@ -12,12 +12,14 @@ interface FormProps{
 const AcceptForm=(props:FormProps)=>{
 
     return(
-        <div style={props.style}>
+        <div className="Accept-form" style={props.style}>
             <p className="Accept-form-msg">
                 {props.children}
             </p>
-            <Button lable="Yes" onClick={props.onSubmit}/>
-            <Button lable="No" onClick={props.onCancel}/>
+            <div className="flex justify-center gap-5 mt-5">
+                <Button lable="Yes" className="Button-Green" onClick={props.onSubmit}/>
+                <Button lable="No"  className="Button-Red" onClick={props.onCancel}/>
+            </div>
         </div>
     )
 }

@@ -1,4 +1,5 @@
 'use client'
+import './css.css'
 import { useEffect, useState} from "react"
 import ListItem from "./ListItem/ListItem"
 const ListContiner=()=>{
@@ -94,7 +95,9 @@ const ListContiner=()=>{
 
     return (
         <div className="flex flex-col justify-center">
-            Connected-To-Server:{SSEconnected.toString()}
+            <div className="flex justify-center p-3">
+                <div className={`Server-Icon server-icon-${SSEconnected}`}></div>
+            </div>
             {listItems(devices)}
         </div>
     )

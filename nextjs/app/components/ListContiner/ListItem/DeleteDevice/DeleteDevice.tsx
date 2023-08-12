@@ -58,7 +58,6 @@ const DeleteDevice=(props:DeleteProps)=>{
                     onCancel={exitAllForms}/>
             </div>
             <div className="delete-device delete-icon" onClick={openForm}>
-                {/* |Delete| */}
             </div>
         </div>
     )

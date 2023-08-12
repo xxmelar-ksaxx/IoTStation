@@ -31,3 +31,23 @@
 .FormSubmitButton:active{
     background-color: #da9604;
 }
+
+.Button-Green{
+    background-color: #58F455;
+}
+.Button-Green:hover{
+    background-color: #58F455;
+}
+.Button-Green:active{
+    background-color: #58F455;
+}
+
+.Button-Red{
+    background-color: #F34B4B;
+}
+.Button-Red:hover{
+    background-color: #F34B4B;
+}
+.Button-Red:active{
+    background-color: #F34B4B;
+}
