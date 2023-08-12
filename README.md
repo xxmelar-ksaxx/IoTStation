@@ -72,6 +72,14 @@ We used Server-Sent-Events (SSE) to send device updates. And a POST request to u
 
 ![Screenshot](images/architecture.png)
 
+## How does it work?
+
+IoTStation server scans the local network for IoTStation devices (in my case ESP8266 server), then the device will show up in the browser automatically.
+
+The scan for new devices is triggered every 10 seconds.
+
+## Requirements
+- Redis
 
 ## Setup
 
