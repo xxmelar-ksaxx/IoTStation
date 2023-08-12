@@ -9,7 +9,7 @@
 **IoTStation** is a generalized system that let’s you create, monitor and control your IoT Devices. The main advantage of this system is that you only code your IoT Device, you don’t need to touch the back-end or front-end code, the system will represent device features in a proper way.
 
 <p align="center">
- <img src="images/homepage.PNG" width="300px" height="500px">
+ <img src="images/homepage.png" width="300px" height="500px">
  </p>
 
 ## **Create your own IoT devices**
