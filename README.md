@@ -32,11 +32,11 @@ Here is the SJS containing IoT device status:
 	"data":{
 		"m":{ # UI main menu
 			"i":{ # informative states
-				look:"closed",  # known state								
+				look:"true",  # known state								
 				power-watt:"600.82",  # known state
 			},
 			"c":{ # controller states
-				switch_1:"off", # unknown state
+				switch_1:"false", # unknown state
 			}
 		},
 		"s":{ # UI sub menu
@@ -45,7 +45,7 @@ Here is the SJS containing IoT device status:
 				water_flow:"9.16m^3", # unknown state
 			},
 			"c":{ # controller states
-				light:"on",  # known state
+				light:"true",  # known state
 			}
 		},
 		"o":{ # OPTIONS, some config stuff. (future features :))
@@ -60,8 +60,8 @@ Here is the SJS sending controlling commands to IoT device:
 {
 	"t":"<time stamp>",
 	"u":{ # contains only Controller states updates
-		switch_1:"on",
-		switch_light_1:"off"
+		switch_1:"true",
+		switch_light_1:"false"
 	}	
 }
 ```
