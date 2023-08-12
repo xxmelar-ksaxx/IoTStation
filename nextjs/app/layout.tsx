@@ -21,10 +21,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         
-        <nav className="flex justify-evenly py-4 border-b mb-4">
+        {/* <nav className="flex justify-evenly py-4 border-b mb-4">
           <Button lable="Home" onClick={()=>router.push('/')}/>
           <Button lable="Login" onClick={()=>router.push('/login')}/>
-        </nav>
+        </nav> */}
         {children}
       </body>
     </html>

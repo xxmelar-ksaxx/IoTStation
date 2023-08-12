@@ -6,13 +6,12 @@
 #include "HW_states_checkers.h"
 
 // Light state
-int light_1_state_on_off_pin_number = 0; // Degital Signal Pin 0 (3 in HW label)
+int light_1_state_on_off_pin_number = 0; // Degital Signal GPIO0 (D3 in HW label)
+// int light_1_state_on_off_pin_number = 16; // Onbord LED GPIO16 (D0 in HW label)(signal inverted!!)
 bool is_on_light_1=false;
 
 void pins_setup(){
   pinMode(light_1_state_on_off_pin_number, OUTPUT);
-  pinMode(0, OUTPUT); // door test led
-  pinMode(2, OUTPUT); // onbord led
 }
 
 void device_states_prep(){
